@@ -9,6 +9,7 @@ const matches = ['*://zhipin.com/*', '*://*.zhipin.com/*']
 
 export default defineConfig({
   srcDir: 'src',
+  outDir: 'output',
   outDirTemplate: '{{browser}}-mv{{manifestVersion}}',
   modules: ['@wxt-dev/module-vue'],
   // imports: false,

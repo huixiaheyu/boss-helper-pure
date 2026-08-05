@@ -25,10 +25,9 @@ export type TaskContext<C extends HelperContext<C, T, S>, T = any, S = any> = {
 export const jobStatusList = [
   'pending',
   'wait',
-  // running 状态区分请求中和AI处理
+  // running 状态区分请求中
   'running',
   'request',
-  'ai',
   // result状态区分成功、失败和警告
   'success',
   'warn',

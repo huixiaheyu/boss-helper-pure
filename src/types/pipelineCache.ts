@@ -3,7 +3,7 @@ import { JobStatus } from '@/composables/useApplying/type'
 /**
  * pipeline 处理分组类型
  */
-export type ProcessorType = 'aiFiltering' | 'amap' | 'basic'
+export type ProcessorType = 'amap' | 'basic'
 
 /**
  * Pipeline缓存项接口

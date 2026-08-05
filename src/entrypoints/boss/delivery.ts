@@ -70,7 +70,6 @@ export const bossWorkflow = defineTaskWorkflow<BossHelperCtx, BoosJobData>(
   ), // 金牌面试官过滤
 
   tasks.amap({ deps: ['岗位详情获取'] }), // 高德地图
-  tasks.aiFiltering({ deps: ['岗位详情获取'] }), // AI过滤
 
   defineTaskHandler('岗位投递', () => async (_, { rawData }) => {
     await sendPublishReq({
@@ -100,5 +99,4 @@ export const bossWorkflow = defineTaskWorkflow<BossHelperCtx, BoosJobData>(
   }), // Boss信息获取
 
   tasks.customGreeting({ deps: ['岗位详情获取', '岗位投递', 'Boss信息获取'] }), // 自定义招呼语
-  tasks.aiGreeting({ deps: ['岗位详情获取', '岗位投递', 'Boss信息获取'] }), // AI招呼语
 )

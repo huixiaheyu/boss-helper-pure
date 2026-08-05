@@ -7,21 +7,14 @@ import { useConf } from '@/composables/conf'
 import { DeliveryWorkflow } from '@/composables/useApplying'
 import type { BossHelperError } from '@/composables/useApplying/deliverError'
 import { TaskResult, WorkflowData } from '@/composables/useApplying/type'
-import { useModel } from '@/composables/useModel'
-import { ChatModel } from '@/composables/useModel'
 import { FormDataInput } from '@/types/formData'
 
-import { initNetConf, NetConf } from './netConf'
 import { Log, JobData, LogData, ConfigAccordionItem, AlertItem } from './type'
 
 export abstract class HelperContext<C extends HelperContext<C, T, S>, T, S> {
-  netConf: Ref<NetConf | null>
-  netConfTimer: NodeJS.Timeout | null = null
   conf: ReturnType<typeof useConf>
-  models: ReturnType<typeof useModel>
   statistics: ReturnType<typeof useStatistics>
 
-  chatModel: ChatModel
   workflow: DeliveryWorkflow<C, T, S> | null = null
   workflowRunning = computed(() => this.workflow?.status.value === 'running')
   jobResultMaps: Reactive<Map<string, TaskResult>>
@@ -30,6 +23,8 @@ export abstract class HelperContext<C extends HelperContext<C, T, S>, T, S> {
   abstract jobMaps: Map<string, WorkflowData<T, S>>
 
   currentJob: Ref<string | null>
+  /** 日志面板最多保留的日志条数 */
+  maxLogs = 6
   _logs: Ref<Log[]>
   logs: {
     add: (job: JobData, err?: BossHelperError, logdata?: LogData, msg?: string) => void
@@ -41,7 +36,6 @@ export abstract class HelperContext<C extends HelperContext<C, T, S>, T, S> {
   constructor() {
     this.pendingMessages = ref()
     this.conf = useConf()
-    this.models = useModel()
     this.statistics = useStatistics()
     this.currentJob = ref(null)
     this._logs = ref([])
@@ -57,6 +51,9 @@ export abstract class HelperContext<C extends HelperContext<C, T, S>, T, S> {
           message,
           data: logdata,
         })
+        if (this._logs.value.length > this.maxLogs) {
+          this._logs.value.splice(0, this._logs.value.length - this.maxLogs)
+        }
       },
       info: (title: string, message: string) => {
         this._logs.value.push({
@@ -66,16 +63,16 @@ export abstract class HelperContext<C extends HelperContext<C, T, S>, T, S> {
           message,
           data: undefined,
         })
+        if (this._logs.value.length > this.maxLogs) {
+          this._logs.value.splice(0, this._logs.value.length - this.maxLogs)
+        }
       },
       clear: () => {
         this._logs.value = []
       },
     })
 
-    this.chatModel = new ChatModel(this)
-
     this.jobResultMaps = reactive(new Map())
-    this.netConf = ref(null)
   }
 
   abstract loadMoreJob(delay: Promise<any>): Promise<boolean>
@@ -92,22 +89,6 @@ export abstract class HelperContext<C extends HelperContext<C, T, S>, T, S> {
   }
   abstract get key(): string
   abstract get label(): string
-
-  initNetConf() {
-    initNetConf().then((data) => {
-      this.netConf.value = data
-    })
-    if (!this.netConfTimer) {
-      this.netConfTimer = setInterval(
-        () => {
-          initNetConf().then((data) => {
-            this.netConf.value = data
-          })
-        },
-        1000 * 60 * 5,
-      )
-    }
-  }
 
   stop() {
     this.workflow?.stop()

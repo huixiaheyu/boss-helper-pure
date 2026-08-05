@@ -1,10 +1,10 @@
 import { counter } from '@/message'
-import { renderTemplate } from '@/utils/ai'
+import { renderTemplate } from '@/utils/template'
 import { HelperContext } from '~/composables/useHelper'
 
 import { sameCompanyKey, sameHrKey } from '../../entrypoints/boss/requests'
 import { defineTaskHandler, JobStatus, TaskContext, TaskResult } from './type'
-import { parseFiltering, rangeMatch, rangeMatchFormat } from './utils'
+import { rangeMatch, rangeMatchFormat } from './utils'
 
 export class DependencyMissingError extends Error {
   constructor(public taskId: string) {
@@ -340,33 +340,6 @@ export class TaskRegistry<C extends HelperContext<C, T, S>, T, S = {}> {
     }
   })
 
-  aiFiltering = defineTaskHandler<C, T, S>(
-    'AI筛选',
-    (ctx) => {
-      if (!ctx.helper.conf.formData.aiFiltering.enable) {
-        return
-      }
-      if (
-        !ctx.helper.chatModel.createAgent(ctx.helper.conf.formData.aiFiltering, 'filtering', {
-          json: true,
-        })
-      ) {
-        throw new HelperConfigError('aiFiltering.model', 'AI筛选模型未配置')
-      }
-      return async (ctx, data) => {
-        const content = await ctx.helper.chatModel.chat('filtering', data).then((r) => r.text)
-        const { message, rating } = parseFiltering(content)
-        if (rating < (ctx.helper.conf.formData.aiFiltering.score ?? 10)) {
-          return taskResult.skip(message)
-        }
-      }
-    },
-    {
-      state: 'ai',
-      stateMsg: 'AI筛选中',
-    },
-  )
-
   activityFilter = defineTaskHandler<C, T, S>('活跃度过滤', (ctx) => {
     if (!ctx.helper.conf.formData.activityFilter.value) {
       return
@@ -436,23 +409,6 @@ export class TaskRegistry<C extends HelperContext<C, T, S>, T, S = {}> {
       }
     },
     { label: '自定义招呼语' },
-  )
-
-  aiGreeting = defineTaskHandler<C, T, S>(
-    '打招呼',
-    (ctx) => {
-      if (!ctx.helper.conf.formData.aiGreeting.enable) {
-        return
-      }
-      if (!ctx.helper.chatModel.createAgent(ctx.helper.conf.formData.aiGreeting, 'greetings')) {
-        throw new HelperConfigError('aiGreeting.model', 'AI招呼模型未配置')
-      }
-      return async (ctx, data) => {
-        const msg = await ctx.helper.chatModel.chat('greetings', data).then((r) => r.text)
-        await ctx.helper.sendMessage?.(data, msg)
-      }
-    },
-    { label: 'AI招呼语', state: 'ai', stateMsg: '生成招呼语中' },
   )
 
   amap = defineTaskHandler<C, T, S>('高德地图', (ctx) => {

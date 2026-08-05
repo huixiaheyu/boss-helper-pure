@@ -131,8 +131,6 @@ async function advancedGreetinSave(close: () => void) {
     <UTextarea
       v-else
       v-model="conf.formData.customGreeting.value"
-      :disabled="conf.formData.aiGreeting.enable"
-      :title="conf.formData.aiGreeting.enable && 'AI招呼语已启用, 自定义招呼语不可用'"
       :rows="3"
       autoresize
       :maxrows="7"

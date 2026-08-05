@@ -31,9 +31,6 @@ export interface FormData {
   goldHunterFilter: FormDataCheckbox
   notification: FormDataCheckbox
   useCache: FormDataCheckbox
-  aiGreeting: FormDataAi
-  aiFiltering: FormDataAi & { score: number }
-  aiReply: FormDataAi
   amap: {
     key: string
     origins: string
@@ -96,17 +93,6 @@ export interface FormDataInputNumber {
 
 export interface FormDataCheckbox {
   value: boolean
-}
-
-export type Prompt = Array<{
-  role: 'system' | 'user' | 'assistant'
-  content: string
-}>
-
-export interface FormDataAi {
-  model?: string
-  prompt: Prompt
-  enable: boolean
 }
 
 export type CustomGreetingItemText = {

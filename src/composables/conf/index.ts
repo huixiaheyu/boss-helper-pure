@@ -3,7 +3,7 @@ import { reactive, ref, toRaw } from 'vue'
 
 import { counter } from '@/message'
 import { ExtStorage } from '@/message'
-import type { ConfigLevel, FormData } from '@/types/formData'
+import type { FormData } from '@/types/formData'
 import deepmerge, { jsonClone } from '@/utils/deepmerge'
 import { exportJson, importJson } from '@/utils/jsonImportExport'
 import { logger } from '@/utils/logger'
@@ -26,8 +26,6 @@ export const appearanceConf = useStorageAsync(
     listSink: false,
     contentOffset: 25, // 0-25, 25则为关闭
     leftChat: false,
-    chatBoxWidth: 600,
-    defaultShowChatBox: false,
   },
   ExtStorage,
   { mergeDefaults: true },
@@ -75,38 +73,6 @@ const FROM_VERSION: [string, (from: Partial<FormData>) => Partial<FormData>][] =
   [
     '20260521',
     (from) => {
-      if (from.aiFiltering?.prompt) {
-        if (typeof from.aiFiltering.prompt === 'string') {
-          from.aiFiltering.prompt = [
-            {
-              role: 'user',
-              content: from.aiFiltering.prompt,
-            },
-          ]
-        }
-      } else {
-        from.aiFiltering = {
-          ...defaultFormData.aiFiltering,
-          ...from.aiFiltering,
-          prompt: defaultFormData.aiFiltering.prompt,
-        }
-      }
-      if (from.aiGreeting?.prompt) {
-        if (typeof from.aiGreeting.prompt === 'string') {
-          from.aiGreeting.prompt = [
-            {
-              role: 'user',
-              content: from.aiGreeting.prompt,
-            },
-          ]
-        }
-      } else {
-        from.aiGreeting = {
-          ...defaultFormData.aiGreeting,
-          ...from.aiGreeting,
-          prompt: defaultFormData.aiGreeting.prompt,
-        }
-      }
       if (from.jobAddress) {
         from.jobAddress = {
           ...from.jobAddress,
@@ -267,19 +233,12 @@ export const useConf = () => {
     })
   }
 
-  const order: Record<ConfigLevel, number> = {
-    beginner: 1,
-    intermediate: 2,
-    advanced: 3,
-    expert: 4,
-  }
-
+  // 仅使用高级模式，移除其他配置级别
   const configLevel = reactiveComputed(() => {
-    const val = order[formData.configLevel]
     return {
-      intermediate: order['intermediate'] <= val,
-      advanced: order['advanced'] <= val,
-      expert: order['expert'] <= val,
+      intermediate: true,
+      advanced: true,
+      expert: false,
     }
   })
 

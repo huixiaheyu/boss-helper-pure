@@ -103,13 +103,6 @@ export interface LogData {
   message?: string
   state?: string
   err?: string
-  aiFilteringQ?: string
-  aiFilteringR?: string | null
-  aiFilteringAjson?: object
-  aiFilteringAtext?: string
-  aiGreetingQ?: string
-  aiGreetingR?: string | null
-  aiGreetingA?: string
 }
 
 type logState = 'info' | 'success' | 'warning' | 'danger'

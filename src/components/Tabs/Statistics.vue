@@ -62,12 +62,6 @@ onMounted(() => {
 
 <template>
   <div class="flex gap-2 flex-col">
-    <Alert
-      id="config-statistics"
-      description="数据并不完全准确，投递上限根据自身情况调整, 建议 120-140, boss限制最高150"
-      color="warning"
-      show-icon
-    />
     <div v-if="conf.configLevel.intermediate" class="grid grid-cols-5 gap-4">
       <div data-help="统计当天脚本扫描过的所有岗位">
         <div class="text-sm text-gray-500">岗位总数：</div>

@@ -3,7 +3,7 @@
   "displayName": "BossHelper",
   "version": "0.5.1",
   "private": true,
-  "description": "Boss直聘助手, 皆在减少投递简历的麻烦, 和提高投递简历的效率,技术栈使用VIte + Vue3 + element-plus",
+  "description": "Boss直聘助手, 皆在减少投递简历的麻烦, 和提高投递简历的效率,技术栈使用Vite + Vue3 + NuxtUI + TailwindCSS",
   "type": "module",
   "scripts": {
     "dev": "wxt",
@@ -25,15 +25,11 @@
     "lint:fix": "oxlint --type-aware --fix"
   },
   "dependencies": {
-    "@ai-sdk/openai": "^4.0.16",
     "@nuxt/ui": "^4.10.0",
     "@vueuse/integrations": "^14.2.1",
-    "ai": "^7.0.31",
-    "codejar": "^4.3.0",
     "comctx": "^1.7.5",
     "idb": "^8.0.3",
     "mqtt": "^5.15.1",
-    "partial-json": "^0.1.7",
     "serialize-error": "^13.0.1",
     "spark-md5": "^3.0.2",
     "tailwindcss": "^4.3.1",

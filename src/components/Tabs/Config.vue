@@ -48,15 +48,6 @@ const configItems = helper.getConfigItems()
         </UAccordion>
         <hr class="border-t border-gray-200 dark:border-gray-800" />
         <div class="mt-3 flex flex-row flex-wrap gap-5 items-center">
-          <UFormField label="配置级别" :data-help="formInfoData.configLevel['data-help']">
-            <USelectMenu
-              v-model="conf.formData.configLevel"
-              :items="formInfoData.configLevel.options"
-              value-key="value"
-              label-key="label"
-              :search-input="false"
-            />
-          </UFormField>
           <span data-help="可以在网站管理中打开通知权限,当停止时会自动发送桌面端通知提醒。">
             <UCheckbox label="发送通知" v-model="conf.formData.notification.value" />
           </span>

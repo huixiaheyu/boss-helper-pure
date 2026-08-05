@@ -16,7 +16,6 @@ const toast = useToast()
 
 // 默认处理器配置
 const DEFAULT_PROCESSOR_CONFIGS: Record<ProcessorType, { expireTime: number }> = {
-  aiFiltering: { expireTime: 7 * 24 * 60 * 60 * 1000 }, // 7天
   amap: { expireTime: 5 * 24 * 60 * 60 * 1000 }, // 5天
   basic: { expireTime: 3 * 24 * 60 * 60 * 1000 }, // 3天
 }
@@ -68,9 +67,6 @@ export class PipelineCacheManager {
    * 根据消息内容推断处理器类型
    */
   private inferProcessorType(message: string): ProcessorType {
-    if (message.includes('AI') || message.includes('分数')) {
-      return 'aiFiltering'
-    }
     if (message.includes('地址') || message.includes('距离') || message.includes('地图')) {
       return 'amap'
     }

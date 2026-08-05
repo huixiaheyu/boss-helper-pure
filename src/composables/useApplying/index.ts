@@ -4,6 +4,7 @@ import { PipelineCacheManager } from '@/composables/usePipelineCache'
 import type { PipelineCacheItem, ProcessorType } from '@/types/pipelineCache'
 
 import { HelperContext } from '../useHelper'
+import { BossHelperError, PublishError } from './deliverError'
 import { DependencyMissingError } from './handles'
 import {
   Handler,
@@ -230,6 +231,7 @@ export async function useDeliveryWorkflow<C extends HelperContext<C, T, S>, T, S
 
   const execute = async (data: WorkflowData<T, S>) => {
     const isStop = () => status.value === 'stop'
+    let lastErr: BossHelperError | undefined
     try {
       let skipPipeline = false
       for (const t of pipeline.value) {
@@ -257,6 +259,9 @@ export async function useDeliveryWorkflow<C extends HelperContext<C, T, S>, T, S
             reason: `任务${t.label ?? t.id}执行失败: ${e instanceof Error ? e.message : e}`,
             msg: `报错/${t.label ?? t.id}`,
           }
+          if (e instanceof BossHelperError) {
+            lastErr = e
+          }
           logger.error(`任务${t.label ?? t.id}执行失败`, e)
           skipPipeline = true
           break
@@ -279,6 +284,27 @@ export async function useDeliveryWorkflow<C extends HelperContext<C, T, S>, T, S
           status: 'success',
           msg: '投递成功',
         })
+      }
+      // 记录投递日志
+      const result = helper.jobResultMaps.get(data.jobData.key)
+      if (result) {
+        if (result.status === 'success') {
+          helper.logs.add(data.jobData)
+        } else if (lastErr) {
+          helper.logs.add(data.jobData, lastErr, undefined, result.reason || result.msg)
+        } else if (result.status === 'warn') {
+          helper.logs.info(
+            `${data.jobData.jobName} - 跳过`,
+            result.reason || result.msg || '未满足条件',
+          )
+        } else {
+          helper.logs.add(
+            data.jobData,
+            new PublishError(result.reason || result.msg || '投递失败'),
+            undefined,
+            result.reason || result.msg,
+          )
+        }
       }
     } catch (e) {
       status.value = 'error'

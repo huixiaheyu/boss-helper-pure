@@ -10,14 +10,10 @@ const helper = useHelper()
 
 const dialogData = reactive<{ show: boolean; data?: Log }>({ show: false })
 
-const aiFilterActiveNames = ref('response')
-const aiGreetActiveNames = ref('response')
-
 const columns: TableColumn<Log>[] = [
   {
-    accessorKey: 'level',
-    header: '级别',
-    // width: 200,
+    accessorKey: 'title',
+    header: '标题',
     cell: ({ row }) => (
       <UButton
         onClick={() => {
@@ -32,10 +28,13 @@ const columns: TableColumn<Log>[] = [
   {
     accessorKey: 'state',
     header: '内容',
-    // width: 150,
-    // align: 'center',
     cell: ({ row }) => (
-      <UBadge color={row.getValue('state') ?? 'primary'}>{row.getValue('state_name')}</UBadge>
+      <div class="flex items-center gap-2">
+        <UBadge color={row.original.state ?? 'primary'}>{row.original.state_name}</UBadge>
+        {row.original.message && (
+          <span class="truncate text-xs text-foreground/70">{row.original.message}</span>
+        )}
+      </div>
     ),
     // headerCellRenderer: (props: HeaderCellRendererParams<log>) => {
     //   return (
@@ -107,8 +106,13 @@ const columns: TableColumn<Log>[] = [
 </script>
 
 <template>
-  <h1>维护当中...还没想好如何设计</h1>
-  <UTable ref="tableRef" :columns="columns" :data="helper.logs.value" :height="360" />
+  <div class="flex items-center justify-between">
+    <h1>投递日志</h1>
+    <UButton size="xs" color="neutral" variant="subtle" @click="helper.logs.clear()">
+      清空日志
+    </UButton>
+  </div>
+  <UTable ref="tableRef" :columns="columns" :data="helper.logs.value" :height="300" />
   <UModal v-model:open="dialogData.show" title="日志详情">
     <template #body>
       <div class="log-detail">
@@ -116,55 +120,22 @@ const columns: TableColumn<Log>[] = [
           <JobCard v-if="dialogData.data?.job" :job="dialogData.data.job" />
         </div>
         <div class="log-detail-right">
-          <UTabs class="demo-tabs">
-            <UTabsList>
-              <UTabsTrigger v-if="dialogData.data?.data?.aiFilteringQ" value="first"
-                >AI过滤</UTabsTrigger
-              >
-              <UTabsTrigger v-if="dialogData.data?.data?.aiGreetingQ" value="second"
-                >AI打招呼</UTabsTrigger
-              >
-              <UTabsTrigger v-if="dialogData.data?.data?.err" value="fourth">错误信息</UTabsTrigger>
-            </UTabsList>
-            <UTabsContent v-if="dialogData.data?.data?.aiFilteringQ" value="first">
-              <UAccordion v-model="aiFilterActiveNames" type="single" collapsible>
-                <UAccordionItem value="prompt" title="Prompt">
-                  <div class="ai-text">{{ dialogData.data.data.aiFilteringQ }}</div>
-                </UAccordionItem>
-                <UAccordionItem
-                  v-if="dialogData.data.data.aiFilteringR"
-                  value="thinking"
-                  title="思考过程"
-                >
-                  <div class="ai-text">{{ dialogData.data.data.aiFilteringR }}</div>
-                </UAccordionItem>
-                <UAccordionItem value="response" title="响应" class="active">
-                  <div class="ai-text">{{ dialogData.data.data.aiFilteringAtext }}</div>
-                </UAccordionItem>
-              </UAccordion>
-            </UTabsContent>
-            <UTabsContent v-if="dialogData.data?.data?.aiGreetingQ" value="second">
-              <UAccordion v-model="aiGreetActiveNames" type="single" collapsible>
-                <UAccordionItem value="prompt" title="Prompt">
-                  <div class="ai-text">{{ dialogData.data.data.aiGreetingQ }}</div>
-                </UAccordionItem>
-                <UAccordionItem
-                  v-if="dialogData.data.data.aiGreetingR"
-                  value="thinking"
-                  title="思考过程"
-                >
-                  <div class="ai-text">{{ dialogData.data.data.aiGreetingR }}</div>
-                </UAccordionItem>
-                <UAccordionItem value="response" title="响应" class="active">
-                  <div class="ai-text">{{ dialogData.data.data.aiGreetingA }}</div>
-                </UAccordionItem>
-              </UAccordion>
-            </UTabsContent>
-            <UTabsContent v-if="dialogData.data?.data?.err" value="fourth">
-              <div>{{ dialogData.data.data.err }}</div>
-              <div v-if="dialogData.data?.data?.message">{{ dialogData.data.data.message }}</div>
-            </UTabsContent>
-          </UTabs>
+          <template v-if="dialogData.data">
+            <div>
+              <UBadge :color="dialogData.data.state ?? 'primary'">
+                {{ dialogData.data.state_name }}
+              </UBadge>
+            </div>
+            <div v-if="dialogData.data.message" class="mt-2 text-sm">
+              {{ dialogData.data.message }}
+            </div>
+            <div v-if="dialogData.data?.data?.err" class="mt-2 text-sm">
+              {{ dialogData.data.data.err }}
+            </div>
+            <div v-if="dialogData.data?.data?.message" class="mt-2 text-sm">
+              {{ dialogData.data.data.message }}
+            </div>
+          </template>
         </div>
       </div>
     </template>

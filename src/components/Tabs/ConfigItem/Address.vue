@@ -29,45 +29,10 @@ async function amapGeocodeHandler() {
   }
 }
 
-function gotoAmapDevSetting() {
-  window.open('https://lbs.amap.com/dev/', '_blank')
-}
 </script>
 
 <template>
   <div class="flex flex-col gap-3">
-    <Alert
-      id="config-amap-2"
-      show-icon
-      type="info"
-      title="使用高德地图前, 需自行创建key (每日免费配额足够使用)"
-      description="推荐结合工作地址包含使用, 创建路径: 创建应用 -> 添加key -> Web服务"
-      :actions="[
-        {
-          label: '前往创建',
-          color: 'primary',
-          variant: 'subtle',
-          onClick: gotoAmapDevSetting,
-        },
-      ]"
-    >
-    </Alert>
-    <Alert
-      id="config-amap-ai"
-      :closable="false"
-      type="info"
-      title="AI Prompt 参考如下语法(仅筛选可用):"
-    >
-      <template #description>
-        <div class="grid grid-cols-2 gap-2">
-          <span v-pre>直线距离: {{ amap.straightDistance }}km</span>
-          <span v-pre>驾车距离: {{ amap.drivingDistance }}km</span>
-          <span v-pre>驾车时间: {{ amap.drivingDuration }}分钟</span>
-          <span v-pre>步行距离: {{ amap.walkingDistance }}km</span>
-          <span v-pre>步行时间: {{ amap.walkingDuration }}分钟</span>
-        </div>
-      </template>
-    </Alert>
     <div class="flex gap-3 items-center">
       <span v-bind="formInfoData.amap.enable">
         <UCheckbox v-model="conf.formData.amap.enable" />

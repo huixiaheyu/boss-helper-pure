@@ -105,7 +105,6 @@ watch(
       <UCheckbox v-model="appearanceConf.blurCard" label="模糊卡片" />
       <UCheckbox v-model="appearanceConf.listSink" label="列表下沉" />
       <UCheckbox v-model="appearanceConf.leftChat" label="左侧聊天" />
-      <UCheckbox v-model="appearanceConf.defaultShowChatBox" label="默认显示聊天框" />
     </div>
     <UFormField label="内容偏移">
       <UInputNumber
@@ -113,16 +112,6 @@ watch(
         :step="0.5"
         :min="0"
         :max="30"
-        size="sm"
-        class="w-3/5"
-      />
-    </UFormField>
-    <UFormField label="聊天框宽度">
-      <UInputNumber
-        v-model="appearanceConf.chatBoxWidth"
-        :step="10"
-        :min="200"
-        :max="1500"
         size="sm"
         class="w-3/5"
       />

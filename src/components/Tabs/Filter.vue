@@ -101,12 +101,6 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <Alert
-    id="tabs-filter"
-    description="此处为Boss原生筛选条件, 如果不生效跟插件无关, 也无法进行功能优化, 遇到样式错误才可反馈"
-    color="warning"
-    show-icon
-  />
   <div
     ref="placeholder"
     class="w-full invisible pointer-events-none"

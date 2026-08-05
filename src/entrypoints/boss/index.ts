@@ -298,7 +298,6 @@ export class BossHelperCtx extends HelperContext<BossHelperCtx, BoosJobData, {}>
     await this._initClickJobCardAction()
     await this._initJobList()
 
-    this.initNetConf()
     const contentElm = elm.querySelector<HTMLDivElement>('.recommend-result-inner')
     this.geek = new GeekChatClientManager()
     await this.geek.connect()
@@ -318,30 +317,12 @@ export class BossHelperCtx extends HelperContext<BossHelperCtx, BoosJobData, {}>
     const conf = useConf()
     return computed<[AlertItem[], (ConfigAccordionItem | false)[]]>(() => {
       return [
-        [
-          {
-            type: 'alert',
-            id: 'config-alert-1',
-            showIcon: true,
-            title: '首次配置前请先进入帮助模式查看说明',
-            color: 'success',
-            description:
-              '所有配置项均提供说明，获取岗位滚动至约 150 条会自动停止，刷新页面或修改求职期望后可重新获取；如遇 Bug 或帮助内容不清晰，欢迎反馈并提出改进建议。',
-          },
-        ],
+        [],
         [
           {
             label: '筛选配置',
             value: 'filter',
             items: [
-              {
-                type: 'alert',
-                id: 'filter-config-alert-enable',
-                title: '复选框打钩才会启用，别忘记打钩启用哦。保存也别忘了',
-                description: '排除和包含可点击切换，混合模式适用性过低难以配置不会考虑开发',
-                color: 'success',
-                showIcon: true,
-              },
               {
                 type: 'div',
                 class: 'grid grid-cols-2 gap-2 mt-2 w-full',
@@ -417,38 +398,6 @@ export class BossHelperCtx extends HelperContext<BossHelperCtx, BoosJobData, {}>
                 ],
               },
             ],
-          },
-          conf.configLevel.intermediate && {
-            label: '招呼语配置',
-            value: 'greetings',
-            items: [
-              {
-                type: 'alert',
-                id: 'config-alert-2',
-                showIcon: true,
-                color: 'success',
-                description: '使用自定义招呼语前 推荐禁用boss直聘自带招呼语',
-                actions: [
-                  {
-                    label: '前往',
-                    color: 'neutral',
-                    variant: 'subtle',
-                    onClick: () => {
-                      window.open(
-                        'https://www.zhipin.com/web/geek/notify-set?type=greetSet',
-                        '_blank',
-                      )
-                    },
-                  },
-                ],
-              },
-              { type: 'customGreeting', key: 'customGreeting' },
-            ],
-          },
-          {
-            label: '外观配置',
-            value: 'appearance',
-            items: [{ type: 'appearance', key: 'appearance' }],
           },
           conf.configLevel.advanced && {
             label: '地址配置',

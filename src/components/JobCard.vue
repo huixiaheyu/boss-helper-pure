@@ -23,7 +23,6 @@ const stateMaps: Record<JobStatus, string> = {
   success: '#2ecc71',
   running: '#98F5F9',
   request: '#3498db',
-  ai: '#9b59b6',
 }
 
 const jobStatus = computed(() => {
@@ -150,7 +149,6 @@ function getActiveTimeType(job: JobData): 'success' | 'warning' | 'error' {
     >
       <UIcon v-if="jobStatus.status === 'running'" name="i-line-md-loading-twotone-loop" />
       <UIcon v-else-if="jobStatus.status === 'request'" name="i-svg-spinners-wifi-fade" />
-      <UIcon v-else-if="jobStatus.status === 'ai'" name="i-line-md-hazard-lights-loop" />
       {{ jobResult?.msg || jobResult?.reason || '无内容' }}
     </div>
   </div>
