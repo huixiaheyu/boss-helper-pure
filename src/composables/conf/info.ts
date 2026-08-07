@@ -46,15 +46,6 @@ export const formInfoData: Record<string, any> = {
     label: '工作地址',
     'data-help': '只能为包含模式, 即投递工作地址当中必须包含当前内容中的任意一项，否则排除',
   },
-  customGreeting: {
-    label: '自定义招呼语',
-    'data-help':
-      '因为boss不支持将自定义的招呼语设置为默认招呼语。开启表示发送boss默认的招呼语后还会发送自定义招呼语',
-  },
-  greetingVariable: {
-    label: '招呼语变量',
-    'data-help': '使用mitem模板引擎来对招呼语进行渲染;',
-  },
   activityFilter: {
     label: '活跃度过滤',
     'data-help': '打开后会自动过滤掉最近未活跃的Boss发布的工作。以免浪费每天的100次机会。',
@@ -164,15 +155,8 @@ export const defaultFormData: FormData = {
     value: [500, 2000, true],
     enable: false,
   },
-  customGreeting: {
-    value: '',
-    enable: false,
-  },
   deliveryLimit: {
     value: 120,
-  },
-  greetingVariable: {
-    value: false,
   },
   activityFilter: {
     value: true,

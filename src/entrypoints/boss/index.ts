@@ -7,14 +7,11 @@ import { HelperContext, JobData } from '@/composables/useHelper'
 import { AlertItem, ConfigAccordionItem } from '@/composables/useHelper/type'
 import { getRootVue, useHookVueData, useHookVueFn } from '@/composables/useVue'
 import { run } from '@/index'
-import { counter, initCounter } from '@/message'
-import { FormDataInput } from '@/types/formData'
+import { initCounter } from '@/message'
 import elmGetter from '@/utils/elmGetter'
 import { logger } from '@/utils/logger'
 
-import { GeekChatClientManager } from './chat'
 import { BoosJobData, bossWorkflow } from './delivery'
-import { uploadImage } from './requests'
 import { BossZpDetailData, BossZpJobItemData } from './types'
 
 function removeAd() {
@@ -127,8 +124,6 @@ export class BossHelperCtx extends HelperContext<BossHelperCtx, BoosJobData, {}>
   label = 'Boss直聘'
   key = 'boss'
 
-  geek!: GeekChatClientManager
-
   _page = ref({ page: 1, pageSize: 15 })
   _pageHasMore = ref(true)
   _jobDetail = ref<BossZpDetailData>()
@@ -214,55 +209,6 @@ export class BossHelperCtx extends HelperContext<BossHelperCtx, BoosJobData, {}>
     await this.workflow.executeAll(this._jobDataMap)
   }
 
-  async sendMessage(data: WorkflowData<BoosJobData, {}>, msgs: FormDataInput['value']) {
-    logger.info('发送消息', { jobKey: data.jobData.key, msg: msgs })
-
-    const stanza = {
-      uid: Number(data.rawData.boss.data.bossId),
-      friendSource: data.rawData.detail.bossInfo.bossSource ?? 0,
-      encryptUid: data.rawData.jobitem.encryptBossId,
-      encryptGid: '',
-      clientMid: Date.now(),
-    }
-    if (typeof msgs === 'string') {
-      msgs = [{ type: 'text', content: msgs }]
-    }
-    for (const msg of msgs) {
-      var m
-      // Each chat message needs its own client id; reusing one makes later messages look duplicated.
-      stanza.clientMid = Date.now()
-      if (msg.type === 'image') {
-        const response = await counter.getImage(msg.image)
-        if (!response.success) {
-          throw new Error('图片未上传或已过期')
-        }
-        const u8Array = new Uint8Array(response.buffer)
-        const file = new File([u8Array.buffer], response.name, { type: response.type })
-        const img = await uploadImage(data.rawData.boss.data.securityId, file)
-
-        m = this.geek.msgBuilder.createImageMessage(stanza, {
-          content: {
-            iid: 0,
-            ...img,
-          },
-        })
-      } else if (msg.type === 'text') {
-        this.pendingMessages.value = msg.content
-        await delay(this.conf.formData.delayMessageSending)
-        m = this.geek.msgBuilder.createTextMessage(stanza, {
-          text: this.pendingMessages.value,
-        })
-        this.pendingMessages.value = undefined
-      } else {
-        throw new Error('不支持的消息类型:' + msg['type'])
-      }
-      this.geek.client.publish('chat', this.geek.msgBuilder.encode(m), {
-        qos: 1,
-        retain: true,
-      })
-    }
-  }
-
   async onMount(path?: string) {
     if (!path) {
       path = this.rootVue.$route.path
@@ -299,8 +245,6 @@ export class BossHelperCtx extends HelperContext<BossHelperCtx, BoosJobData, {}>
     await this._initJobList()
 
     const contentElm = elm.querySelector<HTMLDivElement>('.recommend-result-inner')
-    this.geek = new GeekChatClientManager()
-    await this.geek.connect()
     watch(
       appearanceConf.value,
       (v) => {

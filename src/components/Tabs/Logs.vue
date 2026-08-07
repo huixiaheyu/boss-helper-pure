@@ -1,12 +1,31 @@
 <script lang="tsx" setup>
-import { reactive, ref } from 'vue'
+import { nextTick, onMounted, reactive, ref, watch } from 'vue'
 
 import JobCard from '@/components/JobCard.vue'
 import { TableColumn } from '@nuxt/ui'
 import { useHelper,Log } from '@/composables/useHelper'
 const helper = useHelper()
 
-// const { filterData, dialogData } = useLog()
+// 日志滚动框自身，仅在其内部滚动，避免带动整个页面
+const scrollBox = ref<HTMLElement>()
+
+function scrollToBottom() {
+  const el = scrollBox.value
+  if (el) el.scrollTop = el.scrollHeight
+}
+
+// 日志更新时自动滚动到最新
+watch(
+  () => helper.logs.value.length,
+  () => {
+    void nextTick().then(scrollToBottom)
+  },
+)
+
+// 初次挂载已有历史日志时滚到底
+onMounted(() => {
+  void nextTick().then(scrollToBottom)
+})
 
 const dialogData = reactive<{ show: boolean; data?: Log }>({ show: false })
 
@@ -16,6 +35,8 @@ const columns: TableColumn<Log>[] = [
     header: '标题',
     cell: ({ row }) => (
       <UButton
+        variant="link"
+        class="log-title-btn"
         onClick={() => {
           dialogData.show = true
           dialogData.data = row.original
@@ -30,9 +51,11 @@ const columns: TableColumn<Log>[] = [
     header: '内容',
     cell: ({ row }) => (
       <div class="flex items-center gap-2">
-        <UBadge color={row.original.state ?? 'primary'}>{row.original.state_name}</UBadge>
+        <span class="log-state" data-state={row.original.state ?? 'primary'}>
+          {row.original.state_name}
+        </span>
         {row.original.message && (
-          <span class="truncate text-xs text-foreground/70">{row.original.message}</span>
+          <span class="truncate text-xs opacity-60 mono-label">{row.original.message}</span>
         )}
       </div>
     ),
@@ -90,29 +113,20 @@ const columns: TableColumn<Log>[] = [
     //   )
     // },
   },
-  // {
-  //   accessorKey: 'message',
-  //   header: '信息',
-  //   // width: 360,
-  //   // minWidth: 360,
-  //   // align: 'left',
-  // },
 ]
 
-// TODO: 自动滚动底部
-// watchEffect(() => {
-//   tableRef.value?.scrollToRow(data.value.length - 1);
-// });
 </script>
 
 <template>
-  <div class="flex items-center justify-between">
-    <h1>投递日志</h1>
-    <UButton size="xs" color="neutral" variant="subtle" @click="helper.logs.clear()">
-      清空日志
-    </UButton>
+  <div ref="scrollBox" class="min-h-0 max-h-[500px] overflow-y-auto overflow-x-hidden border border-black/5 rounded-lg">
+    <UTable
+      sticky
+      :columns="columns"
+      :data="helper.logs.value"
+      class="!my-0"
+      :ui="{ thead: 'hidden', td: { base: 'py-1.5 px-2 leading-tight' } }"
+    />
   </div>
-  <UTable ref="tableRef" :columns="columns" :data="helper.logs.value" :height="300" />
   <UModal v-model:open="dialogData.show" title="日志详情">
     <template #body>
       <div class="log-detail">
@@ -146,14 +160,39 @@ const columns: TableColumn<Log>[] = [
 </template>
 
 <style lang="scss">
-.ehp-table-v2__row-depth-0 {
-  height: 50px;
+/* 日志标题按钮（游戏化衬线风格） */
+.log-title-btn {
+  font-family: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
+  font-style: italic;
+  font-size: 0.98rem;
+  color: var(--ink);
 }
 
-.ehp-table-v2__cell-text {
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* 日志状态标签（等宽 + 状态彩块） */
+.log-state {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  padding: 2px 8px;
+  border-radius: 99px;
   white-space: nowrap;
+
+  &[data-state='success'] {
+    color: #2e7d46;
+    background: #cbe3d2;
+  }
+  &[data-state='info'] {
+    color: #2a5f86;
+    background: #d3e2ef;
+  }
+  &[data-state='warning'] {
+    color: #9a6b12;
+    background: #f4dfb6;
+  }
+  &[data-state='danger'] {
+    color: #b03a2e;
+    background: #f4c7b8;
+  }
 }
 
 .log-detail {
@@ -168,42 +207,6 @@ const columns: TableColumn<Log>[] = [
   &-right {
     flex: 1;
     overflow-y: auto;
-  }
-}
-
-.log-section {
-  padding: 16px;
-  background: #f5f7fa;
-  border-radius: 8px;
-  margin-bottom: 16px;
-
-  h4 {
-    margin: 0 0 12px;
-    color: #606266;
-  }
-}
-
-.ai-qa {
-  .ai-q {
-    color: #606266;
-    margin-bottom: 8px;
-  }
-  .ai-a {
-    color: #303133;
-    white-space: pre-wrap;
-  }
-}
-
-.ai-text {
-  white-space: pre-wrap;
-  user-select: text;
-  padding: 8px;
-  line-height: 1.5;
-}
-
-.ehp-collapse-item.active {
-  .ehp-collapse-item__header {
-    border-bottom-color: transparent;
   }
 }
 </style>

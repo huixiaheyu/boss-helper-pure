@@ -1,8 +1,8 @@
 {
   "extName": {
-    "message": "boss-helper"
+    "message": "boss-helper-pure"
   },
   "extDescription": {
-    "message": "BOSS Direct Assistant, Supports rich filtering rules and AI integration, enabling both screening and automatic greetings."
+    "message": "BOSS Direct Assistant Pure, focused on batch delivery and advanced filtering to reduce the hassle of applying and improve efficiency."
   }
 }

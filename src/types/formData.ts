@@ -20,9 +20,7 @@ export interface FormData {
   jobAddress: FormDataSelect
   salaryRange: FormSalaryRangeInput
   companySizeRange: FormDataRangeInput
-  customGreeting: FormDataInput
   deliveryLimit: FormDataInputNumber
-  greetingVariable: FormDataCheckbox
   activityFilter: FormDataCheckbox
   friendStatus: FormDataCheckbox
   bossGoldMedalHr: FormDataCheckbox
@@ -64,11 +62,6 @@ export interface FormDataSelect {
   enable: boolean
 }
 
-export interface FormDataInput {
-  value: string | Array<CustomGreetingItem>
-  enable: boolean
-}
-
 export type FormDataRange = [number, number, boolean]
 
 export interface FormDataRangeInput {
@@ -94,23 +87,3 @@ export interface FormDataInputNumber {
 export interface FormDataCheckbox {
   value: boolean
 }
-
-export type CustomGreetingItemText = {
-  type: 'text'
-  content: string
-}
-
-export type CustomGreetingItemImage = {
-  type: 'image'
-  // image: Record<
-  //   string,
-  //   { meta?: any; model?: File } & (
-  //     | { url: string; base64?: undefined }
-  //     | { url?: undefined; base64: string }
-  //   )
-  // >
-  image: string
-  model?: File
-}
-
-export type CustomGreetingItem = CustomGreetingItemText | CustomGreetingItemImage

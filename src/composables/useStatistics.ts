@@ -1,6 +1,6 @@
-import { reactiveComputed, watchThrottled } from '@vueuse/core'
+import { watchThrottled } from '@vueuse/core'
 
-import { ref } from '#imports'
+import { reactive, ref } from '#imports'
 import { counter } from '@/message'
 import type { Statistics } from '@/types/formData'
 import { getCurDay } from '@/utils'
@@ -13,16 +13,15 @@ export const statisticsKey = 'local:web-geek-job-Statistics'
 export const useStatistics = () => {
   const date = getCurDay()
 
-  const todayData = reactiveComputed<Statistics>(() => {
-    const current = {
-      date,
-      success: 0,
-      total: 0,
-      repeat: 0,
-      activityFilter: 0,
-      tasks: {},
-    }
-    return current
+  // 注意：今日统计是可变的累积状态，必须用普通 reactive 而非 reactiveComputed，
+  // 否则投递过程中对 total/success 的增量会被重算成初始值而丢失。
+  const todayData = reactive<Statistics>({
+    date,
+    success: 0,
+    total: 0,
+    repeat: 0,
+    activityFilter: 0,
+    tasks: {},
   })
 
   const statisticsData = ref<Statistics[]>([])

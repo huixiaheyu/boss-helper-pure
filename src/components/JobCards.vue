@@ -89,19 +89,17 @@ function scrollHandler(key = helper.currentJob.value) {
     return
   }
 
-  if ('scrollIntoView' in d) {
-    d.scrollIntoView({
-      behavior: 'smooth',
-      block: 'nearest',
-      inline: 'center',
-    })
-  } else if ('$el' in d) {
-    d?.$el.scrollIntoView({
-      behavior: 'smooth',
-      block: 'nearest',
-      inline: 'center',
-    })
+  const el = '$el' in d ? d.$el : d
+  if (!el || !cards.value) {
+    return
   }
+
+  // 仅水平滚动卡片容器，保持页面垂直位置不变
+  const targetLeft = el.offsetLeft - (cards.value.clientWidth - el.clientWidth) / 2
+  cards.value.scrollTo({
+    left: targetLeft,
+    behavior: 'smooth',
+  })
 }
 
 watch(

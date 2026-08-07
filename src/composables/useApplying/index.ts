@@ -276,6 +276,8 @@ export async function useDeliveryWorkflow<C extends HelperContext<C, T, S>, T, S
               helper.statistics.todayData.tasks[t.id][res.status] ??= 0
               helper.statistics.todayData.tasks[t.id][res.status] += 1
             }
+            // 今日投递计数：每个被处理的职位 +1
+            helper.statistics.todayData.total = (helper.statistics.todayData.total || 0) + 1
           }
         }
       }
@@ -284,6 +286,8 @@ export async function useDeliveryWorkflow<C extends HelperContext<C, T, S>, T, S
           status: 'success',
           msg: '投递成功',
         })
+        // 今日投递成功数 +1
+        helper.statistics.todayData.success = (helper.statistics.todayData.success || 0) + 1
       }
       // 记录投递日志
       const result = helper.jobResultMaps.get(data.jobData.key)

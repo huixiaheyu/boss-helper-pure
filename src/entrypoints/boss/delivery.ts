@@ -98,5 +98,4 @@ export const bossWorkflow = defineTaskWorkflow<BossHelperCtx, BoosJobData>(
     rawData.boss = bossData
   }), // Boss信息获取
 
-  tasks.customGreeting({ deps: ['岗位详情获取', '岗位投递', 'Boss信息获取'] }), // 自定义招呼语
 )

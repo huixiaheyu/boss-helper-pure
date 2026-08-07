@@ -4,11 +4,12 @@ import { computed, onMounted, ref } from 'vue'
 import Alert from '@/components/Alert.vue'
 import { useConf } from '@/composables/conf'
 import { useHelper } from '@/composables/useHelper'
-import { useStatistics } from '@/composables/useStatistics'
 
 const ctx = useHelper()
 
-const statistics = useStatistics()
+// 与投递流程共享同一统计实例，投递时实时联动
+const statistics = ctx.statistics
+const todayData = statistics.todayData
 
 // const { next, page } = usePager()
 const conf = useConf()
@@ -55,79 +56,75 @@ const deliveryLimit = computed(() => {
   return conf.formData.deliveryLimit.value
 })
 
+// 安全的百分比计算，避免 total 为 0 时出现 NaN
+const pct = (numerator: number) => {
+  const total = todayData.total
+  if (!total) return '0.0'
+  return ((numerator / total) * deliveryLimit.value).toFixed(1)
+}
+
 onMounted(() => {
   statistics.updateStatistics()
 })
 </script>
 
 <template>
-  <div class="flex gap-2 flex-col">
-    <div v-if="conf.configLevel.intermediate" class="grid grid-cols-5 gap-4">
-      <div data-help="统计当天脚本扫描过的所有岗位">
-        <div class="text-sm text-gray-500">岗位总数：</div>
-        <div class="text-2xl font-semibold">
-          {{ statistics.todayData.total }} <span class="text-sm text-gray-400">份</span>
+  <div class="flex flex-col gap-4">
+    <div v-if="conf.configLevel.intermediate" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+      <div class="stat-tile tile-cream" data-help="统计当天脚本扫描过的所有岗位">
+        <div class="stat-label">岗位总数</div>
+        <div class="stat-num">
+          {{ todayData.total }} <span class="text-sm opacity-60">份</span>
         </div>
       </div>
-      <div data-help="统计当天岗位过滤的比例,被过滤/总数">
-        <div class="text-sm text-gray-500">过滤比例：</div>
-        <div class="text-2xl font-semibold">
-          {{
-            (
-              ((statistics.todayData.total - statistics.todayData.success) /
-                statistics.todayData.total) *
-              deliveryLimit
-            ).toFixed(1)
-          }}
-          <span class="text-sm text-gray-400">%</span>
+      <div class="stat-tile tile-coral" data-help="统计当天岗位过滤的比例,被过滤/总数">
+        <div class="stat-label">过滤比例</div>
+        <div class="stat-num">
+          {{ pct(todayData.total - todayData.success) }}
+          <span class="text-sm opacity-60">%</span>
         </div>
       </div>
-      <div data-help="统计当天刷到了多少处理过的岗位,重复/总数">
-        <div class="text-sm text-gray-500">重复比例：</div>
-        <div class="text-2xl font-semibold">
-          {{
-            ((statistics.todayData.repeat / statistics.todayData.total) * deliveryLimit).toFixed(1)
-          }}
-          <span class="text-sm text-gray-400">%</span>
+      <div class="stat-tile tile-lav" data-help="统计当天刷到了多少处理过的岗位,重复/总数">
+        <div class="stat-label">重复比例</div>
+        <div class="stat-num">
+          {{ pct(todayData.repeat) }}
+          <span class="text-sm opacity-60">%</span>
         </div>
       </div>
-      <div data-help="统计当天岗位中的活跃情况,不活跃/总数">
-        <div class="text-sm text-gray-500">活跃比例：</div>
-        <div class="text-2xl font-semibold">
-          {{
-            (
-              (statistics.todayData.activityFilter / statistics.todayData.total) *
-              deliveryLimit
-            ).toFixed(1)
-          }}
-          <span class="text-sm text-gray-400">%</span>
+      <div class="stat-tile tile-mint" data-help="统计当天岗位中的活跃情况,不活跃/总数">
+        <div class="stat-label">活跃比例</div>
+        <div class="stat-num">
+          {{ pct(todayData.activityFilter) }}
+          <span class="text-sm opacity-60">%</span>
         </div>
       </div>
-      <div :data-help="statisticCycleData[statisticCycle].help">
-        <UDropdownMenu
-          :items="
-            statisticCycleData.map((item, index) => ({
-              label: item.label,
-              onSelect: () => (statisticCycle = index),
-            }))
-          "
-        >
-          <div class="text-sm text-gray-500 cursor-pointer flex items-center gap-1">
-            {{ statisticCycleData[statisticCycle].label }}:
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 1024 1024">
-              <path
-                fill="currentColor"
-                d="M831.872 340.864 512 652.672 192.128 340.864a30.592 30.592 0 0 0-42.752 0 29.12 29.12 0 0 0 0 41.6L489.664 714.24a32 32 0 0 0 44.672 0l340.288-331.712a29.12 29.12 0 0 0 0-41.728 30.592 30.592 0 0 0-42.752 0z"
-              />
-            </svg>
-          </div>
-        </UDropdownMenu>
-        <div class="text-2xl font-semibold">
-          {{ cycle + statistics.todayData.success }} <span class="text-sm text-gray-400">份</span>
+      <div class="stat-tile tile-sky" :data-help="statisticCycleData[statisticCycle].help">
+        <div class="stat-label">
+          <UDropdownMenu
+            :items="
+              statisticCycleData.map((item, index) => ({
+                label: item.label,
+                onSelect: () => (statisticCycle = index),
+              }))
+            "
+          >
+            <span class="cursor-pointer flex items-center gap-1">
+              {{ statisticCycleData[statisticCycle].label }}
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 1024 1024">
+                <path
+                  fill="currentColor"
+                  d="M831.872 340.864 512 652.672 192.128 340.864a30.592 30.592 0 0 0-42.752 0 29.12 29.12 0 0 0 0 41.6L489.664 714.24a32 32 0 0 0 44.672 0l340.288-331.712a29.12 29.12 0 0 0 0-41.728 30.592 30.592 0 0 0-42.752 0z"
+                />
+              </svg>
+            </span>
+          </UDropdownMenu>
+        </div>
+        <div class="stat-num">
+          {{ cycle + todayData.success }} <span class="text-sm opacity-60">份</span>
         </div>
       </div>
     </div>
-    <div class="flex flex-row gap-2 items-center justify-center">
+    <div class="flex flex-row gap-3 items-center">
       <UFieldGroup>
         <UButton
           color="primary"
@@ -157,7 +154,7 @@ onMounted(() => {
       <UProgress
         data-help="我会统计当天脚本投递的数量,该记录并不准确"
         class="flex-1"
-        :value="Number(((statistics.todayData.success / deliveryLimit) * 100).toFixed(1))"
+        :value="Number(((todayData.success / deliveryLimit) * 100).toFixed(1))"
       />
     </div>
   </div>

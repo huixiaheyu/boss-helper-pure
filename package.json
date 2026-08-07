@@ -1,9 +1,9 @@
 {
-  "name": "boss-helper",
-  "displayName": "BossHelper",
+  "name": "boss-helper-pure",
+  "displayName": "BossHelperPure",
   "version": "0.5.1",
   "private": true,
-  "description": "Boss直聘助手, 皆在减少投递简历的麻烦, 和提高投递简历的效率,技术栈使用Vite + Vue3 + NuxtUI + TailwindCSS",
+  "description": "Boss直聘助手纯净版, 专注批量投递与高级筛选, 技术栈使用Vite + Vue3 + NuxtUI + TailwindCSS",
   "type": "module",
   "scripts": {
     "dev": "wxt",
@@ -29,7 +29,6 @@
     "@vueuse/integrations": "^14.2.1",
     "comctx": "^1.7.5",
     "idb": "^8.0.3",
-    "mqtt": "^5.15.1",
     "serialize-error": "^13.0.1",
     "spark-md5": "^3.0.2",
     "tailwindcss": "^4.3.1",

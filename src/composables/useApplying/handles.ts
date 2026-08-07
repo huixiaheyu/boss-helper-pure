@@ -1,5 +1,5 @@
 import { counter } from '@/message'
-import { renderTemplate } from '@/utils/template'
+
 import { HelperContext } from '~/composables/useHelper'
 
 import { sameCompanyKey, sameHrKey } from '../../entrypoints/boss/requests'
@@ -347,69 +347,27 @@ export class TaskRegistry<C extends HelperContext<C, T, S>, T, S = {}> {
     return async (_, { jobData }) => {
       const activeText = jobData.activeTimeStr
       const activeTime = jobData.activeTime
-      // TODO: 暂时先用文本匹配吧, activeTime 备用(没确认是否准确)
-      if (!activeText && !activeTime) {
-        return taskResult.skip(`无活跃内容,如果全失败请反馈`)
-      } else if (!activeText && activeTime) {
-        if (ctx.now.getTime() - activeTime >= 7 * 24 * 60 * 60 * 1000) {
-          return {
-            isSkip: true,
-            reason: `不活跃 [${new Date(activeTime).toLocaleString()}]`,
-          }
+      // 允许 2 个月内的活跃，超过则跳过
+      if (activeTime) {
+        const twoMonths = 2 * 30 * 24 * 60 * 60 * 1000
+        if (ctx.now.getTime() - activeTime > twoMonths) {
+          return taskResult.skip(`不活跃 [${new Date(activeTime).toLocaleString()}]`)
         }
-      } else if (!activeText) {
-        return taskResult.skip(`无活跃信息,如果全失败请反馈`)
-      } else if (activeText.includes('月') || activeText.includes('年'))
-        return taskResult.skip(`不活跃, [${activeText}]`)
-    }
-  })
-
-  customGreeting = defineTaskHandler<C, T, S>(
-    '打招呼',
-    (ctx) => {
-      if (!ctx.helper.conf.formData.customGreeting.enable) {
         return
       }
-      return async (ctx, data) => {
-        // if (ctx.bossData == null) {
-        //   const bossData = await requestBossData(ctx.jobData.card!)
-        //   ctx.bossData = bossData
-        // }
-        let msg = ctx.helper.conf.formData.customGreeting.value
-        if (ctx.helper.conf.formData.greetingVariable.value) {
-          if (Array.isArray(msg)) {
-            msg = msg.map((item) => {
-              if (item.type === 'text') {
-                return {
-                  ...item,
-                  content: renderTemplate(item.content, data),
-                }
-              } else {
-                return item
-              }
-            })
-          } else {
-            msg = renderTemplate(msg, data)
-          }
-        }
-
-        // ctx.message = msg
-
-        // const buf = new Message({
-        //   form_uid: uid.toString(),
-        //   to_uid: ctx.bossData.data.bossId.toString(),
-        //   to_name: ctx.bossData.data.encryptBossId, // encryptUserId
-        //   friend_source: ctx.bossData.data.bossSource,
-        //   content: msg,
-        // })
-
-        // await buf.send()
-
-        await ctx.helper.sendMessage?.(data, msg)
+      // 无时间戳时回退文本判断
+      if (!activeText) {
+        return taskResult.skip(`无活跃内容,如果全失败请反馈`)
       }
-    },
-    { label: '自定义招呼语' },
-  )
+      if (activeText.includes('年')) {
+        return taskResult.skip(`不活跃, [${activeText}]`)
+      }
+      const monthMatch = activeText.match(/(\d+)\s*个月/)
+      if (monthMatch && Number(monthMatch[1]) > 2) {
+        return taskResult.skip(`不活跃, [${activeText}]`)
+      }
+    }
+  })
 
   amap = defineTaskHandler<C, T, S>('高德地图', (ctx) => {
     if (!ctx.helper.conf.formData.amap.enable) {

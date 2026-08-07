@@ -12,13 +12,10 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    About: typeof import('./src/components/Tabs/About.vue')['default']
     Address: typeof import('./src/components/Tabs/ConfigItem/Address.vue')['default']
     Alert: typeof import('./src/components/Alert.vue')['default']
-    Appearance: typeof import('./src/components/Tabs/ConfigItem/Appearance.vue')['default']
     Config: typeof import('./src/components/Tabs/Config.vue')['default']
     ConfigItem: typeof import('./src/components/Tabs/ConfigItem/ConfigItem.vue')['default']
-    CustomGreeting: typeof import('./src/components/Tabs/ConfigItem/CustomGreeting.vue')['default']
     Filter: typeof import('./src/components/Tabs/Filter.vue')['default']
     FormItem: typeof import('./src/components/Tabs/ConfigItem/Form/FormItem.vue')['default']
     FormSelect: typeof import('./src/components/Tabs/ConfigItem/Form/FormSelect.vue')['default']
@@ -38,7 +35,6 @@ declare module 'vue' {
     UCheckbox: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/Checkbox.vue')['default']
     UDropdownMenu: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/DropdownMenu.vue')['default']
     UFieldGroup: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/FieldGroup.vue')['default']
-    UFileUpload: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/FileUpload.vue')['default']
     UForm: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/Form.vue')['default']
     UFormField: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/FormField.vue')['default']
     UIcon: typeof import('./node_modules/@nuxt/ui/dist/runtime/vue/components/Icon.vue')['default']
@@ -53,7 +49,6 @@ declare module 'vue' {
     USkeleton: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/Skeleton.vue')['default']
     UTable: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/Table.vue')['default']
     UTabs: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/Tabs.vue')['default']
-    UTextarea: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/Textarea.vue')['default']
     UTheme: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/Theme.vue')['default']
     Version: typeof import('./src/components/Menu/Version.vue')['default']
   }
@@ -61,13 +56,10 @@ declare module 'vue' {
 
 // For TSX support
 declare global {
-  const About: typeof import('./src/components/Tabs/About.vue')['default']
   const Address: typeof import('./src/components/Tabs/ConfigItem/Address.vue')['default']
   const Alert: typeof import('./src/components/Alert.vue')['default']
-  const Appearance: typeof import('./src/components/Tabs/ConfigItem/Appearance.vue')['default']
   const Config: typeof import('./src/components/Tabs/Config.vue')['default']
   const ConfigItem: typeof import('./src/components/Tabs/ConfigItem/ConfigItem.vue')['default']
-  const CustomGreeting: typeof import('./src/components/Tabs/ConfigItem/CustomGreeting.vue')['default']
   const Filter: typeof import('./src/components/Tabs/Filter.vue')['default']
   const FormItem: typeof import('./src/components/Tabs/ConfigItem/Form/FormItem.vue')['default']
   const FormSelect: typeof import('./src/components/Tabs/ConfigItem/Form/FormSelect.vue')['default']
@@ -87,7 +79,6 @@ declare global {
   const UCheckbox: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/Checkbox.vue')['default']
   const UDropdownMenu: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/DropdownMenu.vue')['default']
   const UFieldGroup: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/FieldGroup.vue')['default']
-  const UFileUpload: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/FileUpload.vue')['default']
   const UForm: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/Form.vue')['default']
   const UFormField: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/FormField.vue')['default']
   const UIcon: typeof import('./node_modules/@nuxt/ui/dist/runtime/vue/components/Icon.vue')['default']
@@ -102,7 +93,6 @@ declare global {
   const USkeleton: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/Skeleton.vue')['default']
   const UTable: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/Table.vue')['default']
   const UTabs: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/Tabs.vue')['default']
-  const UTextarea: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/Textarea.vue')['default']
   const UTheme: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/Theme.vue')['default']
   const Version: typeof import('./src/components/Menu/Version.vue')['default']
 }

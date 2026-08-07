@@ -2,6 +2,49 @@
 @import '@nuxt/ui';
 @plugin "@tailwindcss/typography";
 
+/* ------------------------------------------------------------------
+   Boss-Helper · 暖色游戏化主题
+   灵感：游戏化求职面板 —— 暖纸张 + 橙色强调 + 衬线标题 + 等宽标签
+------------------------------------------------------------------ */
+
+/* ---- 设计 Token ---- */
+:root {
+  --stage: #0e0d0c;        /* 舞台背景（暖黑） */
+  --stage-2: #1a1714;      /* 舞台次级（暖深棕） */
+  --paper: #fffdf9;        /* 纸面（暖白） */
+  --paper-2: #f6f1e7;      /* 纸面次级 */
+  --ink: #1a1714;          /* 墨色（主文字） */
+  --ink-soft: #6b6257;     /* 次级文字 */
+  --accent: #e98425;       /* 橙强调 */
+  --accent-2: #ff6b3d;     /* 橙红 */
+  --line: #ebe6dd;         /* 分隔线 */
+
+  --tile-cream: #f4dfb6;   /* 奶油黄 */
+  --tile-coral: #f4c7b8;   /* 珊瑚 */
+  --tile-lav: #d9d2f0;     /* 薰衣草 */
+  --tile-mint: #cbe3d2;    /* 薄荷 */
+  --tile-sky: #d3e2ef;     /* 天空蓝 */
+  --tile-pink: #f2d8dc;    /* 粉 */
+}
+
+/* 等宽标签字体（游戏化数据标签） */
+.mono-label {
+  font-family: 'IBM Plex Mono', ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* 衬线标题（游戏化主标题） */
+.serif-title {
+  font-family: 'Instrument Serif', 'Iowan Old Style', 'Palatino Linotype', Georgia, 'Times New Roman',
+    serif;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
 body {
   background-color: unset;
 }
@@ -9,6 +52,34 @@ body {
 @theme {
   --color-help-brand: #3eaf7c;
   --color-help-bg: rgba(62, 175, 124, 0.2);
+
+  /* 橙色主色板（基色 #e98425），覆盖 Nuxt UI 默认主色 */
+  --color-primary-50: #fef6ee;
+  --color-primary-100: #fdebd6;
+  --color-primary-200: #fad4ad;
+  --color-primary-300: #f7b67a;
+  --color-primary-400: #f39245;
+  --color-primary-500: #e98425;
+  --color-primary-600: #d96d1c;
+  --color-primary-700: #b45518;
+  --color-primary-800: #90441a;
+  --color-primary-900: #763919;
+  --color-primary-950: #401c0b;
+}
+
+/* Nuxt UI 主色映射到橙色 */
+:root {
+  --ui-primary: var(--ui-color-primary-500);
+  --ui-primary-inverted: #fffdf9;
+}
+
+.dark {
+  --ui-primary: var(--ui-color-primary-400);
+  --ui-primary-inverted: #1a1714;
+}
+
+body {
+  background-color: unset;
 }
 
 @layer components {
@@ -27,9 +98,122 @@ body {
   scrollbar-width: thin;
 }
 
-/* https://css-tricks.com/ */
-/* https://uiverse.io/Subaashbala/polite-newt-9 */
+/* ------------------------------------------------------------------
+   签名元素：顶部橙色放射光晕
+------------------------------------------------------------------ */
+.stage-glow {
+  position: absolute;
+  top: -180px;
+  left: 50%;
+  width: 640px;
+  height: 420px;
+  transform: translateX(-50%);
+  background: radial-gradient(
+    circle at 50% 0%,
+    rgba(233, 132, 37, 0.25) 0%,
+    rgba(255, 107, 61, 0.1) 38%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 22px;
+}
 
+/* ------------------------------------------------------------------
+   纸面主面板
+------------------------------------------------------------------ */
+.boss-panel {
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 22px;
+  border: 1px solid var(--line);
+  box-shadow:
+    0 1px 2px rgba(20, 16, 12, 0.08),
+    0 24px 60px -24px rgba(20, 16, 12, 0.45);
+}
+
+/* ------------------------------------------------------------------
+   等级 / XP 进度条（签名游戏化元素）
+------------------------------------------------------------------ */
+.level-ribbon {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: linear-gradient(120deg, var(--stage), var(--stage-2));
+  color: var(--paper);
+}
+
+.level-ribbon .level-num {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--accent);
+}
+
+.level-ribbon .level-xp {
+  flex: 1;
+}
+
+.level-xp .xp-bar {
+  height: 8px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.level-xp .xp-bar > i {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ------------------------------------------------------------------
+   彩块统计卡片（游戏化 tile）
+------------------------------------------------------------------ */
+.stat-tile {
+  position: relative;
+  border-radius: 16px;
+  padding: 14px 16px;
+  min-height: 92px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  transition: transform 0.18s ease;
+}
+
+.stat-tile:hover {
+  transform: translateY(-3px);
+}
+
+.stat-tile .stat-num {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 2.1rem;
+  line-height: 1;
+}
+
+.stat-tile .stat-label {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.72;
+}
+
+.stat-tile.tile-cream { background: var(--tile-cream); }
+.stat-tile.tile-coral { background: var(--tile-coral); }
+.stat-tile.tile-lav   { background: var(--tile-lav); }
+.stat-tile.tile-mint  { background: var(--tile-mint); }
+.stat-tile.tile-sky   { background: var(--tile-sky); }
+.stat-tile.tile-pink  { background: var(--tile-pink); }
+
+/* ------------------------------------------------------------------
+   Boss-Helper 卡片容器 / 职位卡片
+------------------------------------------------------------------ */
 .boss-helper-card {
   position: relative;
   --x: 0px;
@@ -110,9 +294,10 @@ html.dark {
   --state-show: block;
 
   padding: 1.5rem;
-  border-radius: 16px;
-  background: linear-gradient(85deg, #f2eeee, #eff0f6);
-  color: #000;
+  border-radius: 18px;
+  background: linear-gradient(85deg, #fdfaf4, #f6f1e7);
+  border: 1px solid var(--line);
+  color: var(--ink);
   display: flex;
   flex-direction: column;
   transition: 0.2s;
@@ -122,7 +307,7 @@ html.dark {
   max-width: 360px;
   min-height: 28rem;
   max-height: 32rem;
-  box-shadow: -2rem 0 1rem -2rem #cdb9b9;
+  box-shadow: -2rem 0 1rem -2rem rgba(205, 185, 185, 0.6);
 
   * {
     user-select: none;
@@ -164,16 +349,21 @@ html.dark {
     font-size: 0.7rem;
   }
   .card-title {
-    font-size: 1.2rem;
+    font-family: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 1.35rem;
+    line-height: 1.2;
     margin: 0 0 8px;
     &:hover {
-      color: #409eff;
+      color: #e98425;
     }
   }
   .card-salary {
     font-size: 1.1rem;
     margin: 0 0 1rem;
-    color: #ff442e;
+    font-weight: 600;
+    color: var(--accent-2);
   }
   .card-footer {
     -webkit-margin-before: auto;
@@ -252,13 +442,13 @@ html.dark {
 
 html.dark {
   .job-card {
-    background: linear-gradient(85deg, #434343, #262626);
+    background: linear-gradient(85deg, #26221e, #1a1714);
     color: #fff;
-    box-shadow: -2rem 0 1rem -2rem #000;
+    box-shadow: -2rem 0 1rem -2rem rgba(0, 0, 0, 0.6);
     .card-title {
-      color: #fff;
+      color: #fdfaf4;
       &:hover {
-        color: #409eff;
+        color: var(--accent);
       }
     }
     .card-status {
@@ -268,23 +458,23 @@ html.dark {
     }
 
     .card-tag {
-      color: #b4b4b4;
+      color: #a89f94;
     }
 
     .card-salary {
-      color: #ff442e;
+      color: var(--accent-2);
     }
 
     .author-row {
-      color: #a09f9f;
+      color: #a89f94;
 
       .company-name {
-        color: #fff;
+        color: #fdfaf4;
       }
     }
 
     &:not(:first-child) {
-      box-shadow: -3rem 0 3rem -3rem #000;
+      box-shadow: -3rem 0 3rem -3rem rgba(0, 0, 0, 0.7);
     }
   }
 }

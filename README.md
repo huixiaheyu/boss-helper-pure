@@ -1,26 +1,35 @@
-# 纯净版 Boss直聘助手
+# boss-helper-pure 纯净版 Boss直聘助手
 
 > [!CAUTION]
 > 本项目仅供学习交流，禁止用于商业用途
 >
 > 使用该脚本有一定风险(如黑号,封号,权重降低等)，本项目不承担任何责任
 
-基于 boss-helper 项目精简定制的**纯净版**：移除 AI、公告、辅助 UI 等非核心功能，专注**批量投递 + 高级筛选 + 自定义招呼语**，体验更轻量简洁。
+基于 boss-helper 项目精简定制的**纯净版**（`boss-helper-pure`）：移除 AI、招呼语、公告、辅助 UI 等非核心功能，专注**批量投递 + 高级筛选**，体验更轻量简洁。
 
 技术栈：WXT + Vue3 + NuxtUI@4 + TailwindCSS@4
 
 ## 纯净版移除了什么
 
 ### 1. AI 功能
+
 - 删除 AI 组件：AI 招呼/筛选/回复、AI 对话面板
 - 删除模型管理（多模型配置）
 - 移除投递流程中 AI 筛选 / AI 招呼任务
 - 移除相关依赖（`ai`、`@ai-sdk/openai` 等）
 
 ### 2. 公告 / 联网配置
+
 - 删除公告横幅、反馈按钮、版本检查
 
-### 3. 辅助 UI（纯净化界面）
+### 3. 招呼语功能
+
+- 删除自定义招呼语任务与发送通道（MQTT 聊天）
+- 删除招呼语配置面板
+- 移除 `mqtt` 依赖
+
+### 4. 辅助 UI（纯净化界面）
+
 - 横栏：删除「关于&赞赏」「帮助」、版本号按钮
 - 配置面板：删除招呼语配置、外观配置、顶部提示卡片
 - 配置级别强制为「高级」模式
@@ -29,7 +38,6 @@
 
 - 批量投递简历
 - 高级筛选（薪资 / 公司 / 岗位 / 内容 / 地址距离等）
-- 自定义招呼语（模板变量）
 - 投递日志
 
 ## 使用
@@ -65,13 +73,13 @@
 
 ## 鸣谢
 
-- <https://github.com/yangfeng20/boss_batch_push>
-- <https://github.com/lisonge/vite-plugin-monkey>
-- <https://github.com/chatanywhere/GPT_API_free>
-- <https://uiverse.io/>
-- <https://www.runoob.com/manual/mqtt/protocol/MQTT-3.1.1-CN.pdf>
+- [https://github.com/yangfeng20/boss_batch_push](https://github.com/yangfeng20/boss_batch_push)
+- [https://github.com/lisonge/vite-plugin-monkey](https://github.com/lisonge/vite-plugin-monkey)
+- [https://github.com/chatanywhere/GPT_API_free](https://github.com/chatanywhere/GPT_API_free)
+- [https://uiverse.io/](https://uiverse.io/)
+- [https://www.runoob.com/manual/mqtt/protocol/MQTT-3.1.1-CN.pdf](https://www.runoob.com/manual/mqtt/protocol/MQTT-3.1.1-CN.pdf)
 
 ## 类似项目
 
-- <https://github.com/Frrrrrrrrank/auto_job__find__chatgpt__rpa>
-- <https://github.com/noBaldAaa/find-job>
+- [https://github.com/Frrrrrrrrank/auto_job__find__chatgpt__rpa](https://github.com/Frrrrrrrrank/auto_job__find__chatgpt__rpa)
+- [https://github.com/noBaldAaa/find-job](https://github.com/noBaldAaa/find-job)

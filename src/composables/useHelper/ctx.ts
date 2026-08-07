@@ -7,7 +7,6 @@ import { useConf } from '@/composables/conf'
 import { DeliveryWorkflow } from '@/composables/useApplying'
 import type { BossHelperError } from '@/composables/useApplying/deliverError'
 import { TaskResult, WorkflowData } from '@/composables/useApplying/type'
-import { FormDataInput } from '@/types/formData'
 
 import { Log, JobData, LogData, ConfigAccordionItem, AlertItem } from './type'
 
@@ -23,8 +22,6 @@ export abstract class HelperContext<C extends HelperContext<C, T, S>, T, S> {
   abstract jobMaps: Map<string, WorkflowData<T, S>>
 
   currentJob: Ref<string | null>
-  /** 日志面板最多保留的日志条数 */
-  maxLogs = 6
   _logs: Ref<Log[]>
   logs: {
     add: (job: JobData, err?: BossHelperError, logdata?: LogData, msg?: string) => void
@@ -51,9 +48,6 @@ export abstract class HelperContext<C extends HelperContext<C, T, S>, T, S> {
           message,
           data: logdata,
         })
-        if (this._logs.value.length > this.maxLogs) {
-          this._logs.value.splice(0, this._logs.value.length - this.maxLogs)
-        }
       },
       info: (title: string, message: string) => {
         this._logs.value.push({
@@ -63,12 +57,6 @@ export abstract class HelperContext<C extends HelperContext<C, T, S>, T, S> {
           message,
           data: undefined,
         })
-        if (this._logs.value.length > this.maxLogs) {
-          this._logs.value.splice(0, this._logs.value.length - this.maxLogs)
-        }
-      },
-      clear: () => {
-        this._logs.value = []
       },
     })
 
@@ -80,7 +68,6 @@ export abstract class HelperContext<C extends HelperContext<C, T, S>, T, S> {
   abstract getConfigItems(): ComputedRef<[AlertItem[], (ConfigAccordionItem | false)[]]>
 
   abstract start(): Promise<void>
-  abstract sendMessage(data: WorkflowData<T, S>, msg: FormDataInput['value']): Promise<void>
   abstract get uid(): string
   abstract get userInfo(): {
     id: string
