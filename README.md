@@ -70,16 +70,3 @@
 - 卸载扩展即删除所有本地数据。
 
 无其他浏览活动收集。扩展仅在 zhipin.com 域名注入脚本。
-
-## 鸣谢
-
-- [https://github.com/yangfeng20/boss_batch_push](https://github.com/yangfeng20/boss_batch_push)
-- [https://github.com/lisonge/vite-plugin-monkey](https://github.com/lisonge/vite-plugin-monkey)
-- [https://github.com/chatanywhere/GPT_API_free](https://github.com/chatanywhere/GPT_API_free)
-- [https://uiverse.io/](https://uiverse.io/)
-- [https://www.runoob.com/manual/mqtt/protocol/MQTT-3.1.1-CN.pdf](https://www.runoob.com/manual/mqtt/protocol/MQTT-3.1.1-CN.pdf)
-
-## 类似项目
-
-- [https://github.com/Frrrrrrrrank/auto_job__find__chatgpt__rpa](https://github.com/Frrrrrrrrank/auto_job__find__chatgpt__rpa)
-- [https://github.com/noBaldAaa/find-job](https://github.com/noBaldAaa/find-job)

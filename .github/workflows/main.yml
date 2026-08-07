@@ -28,7 +28,7 @@ jobs:
       - name: Prepare release
         run: |
           mkdir release
-          cp .output/*.zip release/
+          cp output/*.zip release/
           rm -f release/*sources.zip
           ls -lah release
 
