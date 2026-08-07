@@ -1,7 +1,7 @@
 {
   "name": "boss-helper-pure",
   "displayName": "BossHelperPure",
-  "version": "0.5.1",
+  "version": "0.0.1",
   "private": true,
   "description": "Boss直聘助手纯净版, 专注批量投递与高级筛选, 技术栈使用Vite + Vue3 + NuxtUI + TailwindCSS",
   "type": "module",
