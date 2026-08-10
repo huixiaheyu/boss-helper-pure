@@ -1,13 +1,6 @@
 <template>
   <div class="p-2 flex flex-col gap-3">
     <div class="flex flex-col gap-1">
-      <div class="serif-title text-lg leading-none" style="color: var(--accent)">
-        boss-helper-pure
-      </div>
-      <div class="mono-label text-sm">纯净版 · 求职助手 · 批量投递</div>
-    </div>
-
-    <div class="flex flex-col gap-1">
       <div class="mono-label text-xs opacity-60">项目简介</div>
       <p class="text-sm leading-relaxed">
         基于 boss-helper 精简定制的纯净版扩展，移除 AI、招呼语、公告等非核心功能，专注

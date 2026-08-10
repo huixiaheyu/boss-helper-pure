@@ -20,7 +20,7 @@ export async function getRootVue(): Promise<any> {
           resolve(rootVue.value)
           clearInterval(interval)
         }
-      }, 300)
+      }, 100)
       setTimeout(() => {
         reject(new Error('未找到vue根组件'))
         clearInterval(interval)

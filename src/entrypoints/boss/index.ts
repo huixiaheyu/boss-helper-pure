@@ -70,8 +70,8 @@ function convertBossZpJobItemToJobData(item: BossZpJobItemData): JobData {
     experienceName: item.jobExperience || item.jobLabels?.[0] || '经验不限',
     degreeName: item.jobDegree || '学历不限',
     salary: item.salaryDesc,
-    lowSalary: item.lowSalary,
-    highSalary: item.highSalary,
+    lowSalary: (item as { job?: { lowSalary?: number }; lowSalary?: number }).job?.lowSalary ?? (item as { lowSalary?: number }).lowSalary,
+    highSalary: (item as { job?: { highSalary?: number }; highSalary?: number }).job?.highSalary ?? (item as { highSalary?: number }).highSalary,
 
     // 地址相关
     address: [item.cityName, item.areaDistrict, item.businessDistrict].filter(Boolean).join('-'),
@@ -240,11 +240,14 @@ export class BossHelperCtx extends HelperContext<BossHelperCtx, BoosJobData, {}>
     elm.insertBefore(appElement, elm.firstChild)
     removeAd()
 
-    await this._initPage()
-    await this._initPageChange()
-    await this._initJobDetail()
-    await this._initClickJobCardAction()
-    await this._initJobList()
+    // 并行初始化, 加快面板数据就绪(避免串行等待 boss 站各数据源)
+    await Promise.allSettled([
+      this._initPage(),
+      this._initPageChange(),
+      this._initJobDetail(),
+      this._initClickJobCardAction(),
+      this._initJobList(),
+    ])
 
     const contentElm = elm.querySelector<HTMLDivElement>('.recommend-result-inner')
     watch(
