@@ -142,13 +142,10 @@ export const defaultFormData: FormData = {
     include: true,
   },
   salaryRange: {
-    value: [8, 13, false],
-    advancedValue: {
-      // 默认全部关闭，避免用户未配置而投递错误岗位
-      H: [0, 1, false],
-      D: [0, 1, false],
-      M: [0, 1, false],
-    },
+    value: [8000, 13000, false],
+    unit: 'K',
+    workDays: 21.75,
+    workHours: 8,
     enable: false,
   },
   companySizeRange: {
@@ -199,5 +196,5 @@ export const defaultFormData: FormData = {
   delayDeliveryInterval: 5,
   delayDeliveryPageNext: 60,
   delayMessageSending: 2,
-  version: '20260718',
+  version: '20260810',
 }

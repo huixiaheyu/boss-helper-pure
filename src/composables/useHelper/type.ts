@@ -24,6 +24,11 @@ export type JobData = JobBaseData & {
   /** 薪资描述，例如：'15-25K' */
   salary: string
 
+  /** 结构化最低薪资，单位: 元/月，例如：15000 */
+  lowSalary?: number
+  /** 结构化最高薪资，单位: 元/月，例如：25000 */
+  highSalary?: number
+
   /** 工作城市地址，例如：'北京-朝阳区' */
   city?: string
   /** 工作地址，例如：'北京市朝阳区xxx大厦' */

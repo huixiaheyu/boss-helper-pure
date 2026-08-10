@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import Alert from '@/components/Alert.vue'
-import { formInfoData, useConf } from '@/composables/conf'
+import { useConf } from '@/composables/conf'
 import { getCacheManager } from '@/composables/useApplying'
 import { useHelper } from '@/composables/useHelper'
 
@@ -64,7 +64,11 @@ const configItems = helper.getConfigItems()
           >
             清空缓存
           </UButton>
-          <UFormField v-if="conf.configLevel.intermediate" label="投递数量">
+          <UFormField
+            v-if="conf.configLevel.intermediate"
+            label="投递数量"
+            class="ml-auto"
+          >
             <UInputNumber
               label="投递数量"
               data-help="达到上限后会自动暂停，默认100次, 当前boss上限为150"
@@ -78,34 +82,15 @@ const configItems = helper.getConfigItems()
       </UForm>
       <div class="flex flex-row *:flex *:flex-row justify-between *:gap-3 mt-3">
         <div>
-          <UButton color="success" data-help="保存配置" @click="conf.confSaving">
-            保存配置
-          </UButton>
-          <UButton color="warning" data-help="重新加载本地配置" @click="conf.confReload">
-            重载配置
-          </UButton>
           <UButton
-            color="primary"
-            data-help="不同版本的参数可能会调整, 更新之后一键应用, 不会覆盖主要筛选条件"
-            @click="conf.confRecommend"
+            color="warning"
+            data-help="将当前配置重置为默认值并自动保存"
+            @click="conf.confResetDefault"
           >
-            使用推荐配置
+            恢复默认配置
           </UButton>
         </div>
         <div>
-          <UFormField
-            label="预设: "
-            data-help="虽然不维护多账号了, 但是预设还是要有的, 这样使用隐身/第三方扩展依旧能多账号使用. 多账号是一件多助人为乐的事呀"
-          >
-            <UInputMenu
-              v-model="conf.formDataPreset.value"
-              :items="conf.formDataPresets.value"
-              value-key="value"
-              create-item
-              @create="conf.createPreset"
-              @update:model-value="(v) => conf.switchPreset(v)"
-            />
-          </UFormField>
           <UButton
             v-if="conf.configLevel.intermediate"
             color="primary"
@@ -121,14 +106,6 @@ const configItems = helper.getConfigItems()
             @click="conf.confImport"
           >
             导入配置
-          </UButton>
-          <UButton
-            v-if="conf.configLevel.advanced"
-            color="error"
-            data-help="清空配置,不会帮你保存,可以重载恢复"
-            @click="conf.confDelete"
-          >
-            清空配置
           </UButton>
         </div>
       </div>

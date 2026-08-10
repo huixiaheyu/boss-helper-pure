@@ -52,16 +52,21 @@ const cycle = computed(() => {
   return ans
 })
 
-const deliveryLimit = computed(() => {
-  return conf.formData.deliveryLimit.value
-})
-
 // 安全的百分比计算，避免 total 为 0 时出现 NaN
 const pct = (numerator: number) => {
   const total = todayData.total
   if (!total) return '0.0'
-  return ((numerator / total) * deliveryLimit.value).toFixed(1)
+  return ((numerator / total) * 100).toFixed(1)
 }
+
+// 已沟通(重复投递)数量: 从「已沟通」任务跳过计数统计
+const repeatCount = computed(
+  () => todayData.tasks?.['已沟通']?.skip ?? 0,
+)
+// 不活跃数量: 从「活跃度过滤」任务跳过计数统计
+const activityCount = computed(
+  () => todayData.tasks?.['活跃度过滤']?.skip ?? 0,
+)
 
 onMounted(() => {
   statistics.updateStatistics()
@@ -84,17 +89,17 @@ onMounted(() => {
           <span class="text-sm opacity-60">%</span>
         </div>
       </div>
-      <div class="stat-tile tile-lav" data-help="统计当天刷到了多少处理过的岗位,重复/总数">
+      <div class="stat-tile tile-lav" data-help="统计当天已沟通(避免重复投递)的岗位占比">
         <div class="stat-label">重复比例</div>
         <div class="stat-num">
-          {{ pct(todayData.repeat) }}
+          {{ pct(repeatCount) }}
           <span class="text-sm opacity-60">%</span>
         </div>
       </div>
-      <div class="stat-tile tile-mint" data-help="统计当天岗位中的活跃情况,不活跃/总数">
+      <div class="stat-tile tile-mint" data-help="统计当天岗位中的不活跃占比">
         <div class="stat-label">活跃比例</div>
         <div class="stat-num">
-          {{ pct(todayData.activityFilter) }}
+          {{ pct(activityCount) }}
           <span class="text-sm opacity-60">%</span>
         </div>
       </div>

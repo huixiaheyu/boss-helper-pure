@@ -71,12 +71,14 @@ export interface FormDataRangeInput {
 
 export interface FormSalaryRangeInput {
   // 宽松/严格 默认宽松false
-  value: FormDataRange // 8-13K
-  advancedValue: {
-    H: FormDataRange // 45-75元/时
-    D: FormDataRange // 360-600元/天
-    M: FormDataRange // 8000-13000元/月
-  }
+  // value 统一为 元/月，如 [8000, 13000, false]
+  value: FormDataRange
+  // 主配置输入/展示单位: 'yuan' 显示为 8000-13000 元, 'K' 显示为 8-13K
+  unit: 'yuan' | 'K'
+  // 每月工作天数(用于月薪/日薪/时薪换算), 双休约21.75
+  workDays: number
+  // 每日工作小时数, 默认8
+  workHours: number
   enable: boolean
 }
 

@@ -20,7 +20,7 @@ const todayData = statistics.todayData
 const items = computed<TabsItem[]>(() => {
   const configs = [
     { slot: 'statistics', label: '统计' },
-    { slot: 'filter', label: '筛选' },
+    { slot: 'filter', label: '搜索' },
     { slot: 'config', label: '配置' },
     { slot: 'logs', label: '日志' },
   ] satisfies (TabsItem | boolean | null | undefined | '')[]
@@ -30,7 +30,6 @@ const items = computed<TabsItem[]>(() => {
 
 // 求职等级：把今日投递量映射为可感知的游戏化进度
 const LEVEL_STEP = 50 // 每 50 次投递升 1 级
-const level = computed(() => Math.floor(todayData.success / LEVEL_STEP))
 const levelProgress = computed(() => {
   const inLevel = todayData.success % LEVEL_STEP
   return Math.min(100, Math.round((inLevel / LEVEL_STEP) * 100))
@@ -46,7 +45,7 @@ onMounted(() => {
 
 <template>
   <div
-    class="shadow-wrapper w-284 max-w-284 min-w-284 m-10 mx-auto mb-24"
+    class="shadow-wrapper w-284 max-w-284 min-w-284 m-10 mx-auto mb-6"
     :style="{
       marginRight:
         appearanceConf.leftChat && appearanceConf.contentOffset != 25
@@ -76,24 +75,14 @@ onMounted(() => {
               <span v-if="helper.workflow && helper.workflow.total.value > 0" class="mono-label">
                 页面 {{ helper.workflow.current.value + 1 }}/{{ helper.workflow.total.value }}
               </span>
-              <!-- 等级徽标 -->
-              <div class="flex items-center gap-1.5 rounded-full bg-[#1a1714] px-3 py-1">
-                <span class="mono-label" style="color: rgba(255, 255, 255, 0.55)">LV</span>
-                <span class="serif-title text-lg leading-none" style="color: var(--accent)">
-                  {{ level }}
-                </span>
-              </div>
+              <span class="mono-label shrink-0">
+                今日投递 {{ todayData.success }}/{{ conf.formData.deliveryLimit.value }}
+              </span>
             </div>
           </div>
 
           <!-- 今日投递进度条 -->
-          <div class="flex items-center gap-3 mb-4">
-            <span class="mono-label shrink-0">今日投递</span>
-            <div class="xp-bar flex-1"><i :style="{ width: `${levelProgress}%` }" /></div>
-            <span class="mono-label shrink-0">
-              {{ todayData.success }}/{{ conf.formData.deliveryLimit.value }}
-            </span>
-          </div>
+          <div class="xp-bar mb-4"><i :style="{ width: `${levelProgress}%` }" /></div>
 
           <UTabs
             :items="items"

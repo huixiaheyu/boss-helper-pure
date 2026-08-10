@@ -70,6 +70,8 @@ function convertBossZpJobItemToJobData(item: BossZpJobItemData): JobData {
     experienceName: item.jobExperience || item.jobLabels?.[0] || '经验不限',
     degreeName: item.jobDegree || '学历不限',
     salary: item.salaryDesc,
+    lowSalary: item.lowSalary,
+    highSalary: item.highSalary,
 
     // 地址相关
     address: [item.cityName, item.areaDistrict, item.businessDistrict].filter(Boolean).join('-'),
@@ -274,23 +276,23 @@ export class BossHelperCtx extends HelperContext<BossHelperCtx, BoosJobData, {}>
                 items: [
                   {
                     type: 'select',
-                    key: 'company',
+                    key: 'jobTitle',
                   },
                   {
                     type: 'select',
-                    key: 'jobTitle',
+                    key: 'company',
                   },
                   {
                     type: 'select',
                     key: 'jobContent',
                   },
-                  {
-                    type: 'select',
-                    key: 'hrPosition',
-                  },
                   conf.configLevel.intermediate && {
                     type: 'select',
                     key: 'jobAddress',
+                  },
+                  {
+                    type: 'select',
+                    key: 'hrPosition',
                   },
                   {
                     type: 'div',
@@ -299,7 +301,7 @@ export class BossHelperCtx extends HelperContext<BossHelperCtx, BoosJobData, {}>
               },
               {
                 type: 'div',
-                class: 'flex gap-2 mt-3',
+                class: 'flex justify-between gap-3 mt-3 w-full',
                 items: [
                   conf.configLevel.intermediate && {
                     type: 'salaryRange',

@@ -4,7 +4,7 @@ import { HelperContext } from '~/composables/useHelper'
 
 import { sameCompanyKey, sameHrKey } from '../../entrypoints/boss/requests'
 import { defineTaskHandler, JobStatus, TaskContext, TaskResult } from './type'
-import { rangeMatch, rangeMatchFormat } from './utils'
+import { matchRange, parseSalaryToMonth, rangeMatch, rangeMatchFormat } from './utils'
 
 export class DependencyMissingError extends Error {
   constructor(public taskId: string) {
@@ -209,22 +209,29 @@ export class TaskRegistry<C extends HelperContext<C, T, S>, T, S = {}> {
     if (!ctx.helper.conf.formData.salaryRange.enable) {
       return
     }
-    const arr = [
-      ['元/时', ctx.helper.conf.formData.salaryRange.advancedValue.H],
-      ['元/天', ctx.helper.conf.formData.salaryRange.advancedValue.D],
-      ['元/月', ctx.helper.conf.formData.salaryRange.advancedValue.M],
-      ['K', ctx.helper.conf.formData.salaryRange.value],
-    ] as const
+    // 主配置统一为 元/月: [min, max, mode]
+    const form = ctx.helper.conf.formData.salaryRange.value
     return async (_ctx, { jobData: data }) => {
       const text = data.salary
-      for (const key of arr) {
-        if (text.includes(key[0])) {
-          if (!rangeMatch(text, key[1])) {
-            return {
-              isSkip: true,
-              reason: `不匹配的薪资范围 ${text}, 预期: ${rangeMatchFormat(key[1], key[0])}`,
-            }
-          }
+      // 优先使用结构化薪资(元/月), 缺失时回退文本解析
+      let lo = data.lowSalary
+      let hi = data.highSalary
+      if (typeof lo !== 'number' || typeof hi !== 'number' || (!lo && !hi)) {
+        const parsed = parseSalaryToMonth(
+          text,
+          ctx.helper.conf.formData.salaryRange.workDays,
+          ctx.helper.conf.formData.salaryRange.workHours,
+        )
+        if (!parsed) {
+          // 无法解析(如"面议"), 不拦截
+          return
+        }
+        ;[lo, hi] = parsed
+      }
+      if (!matchRange(lo, hi, form)) {
+        return {
+          isSkip: true,
+          reason: `不匹配的薪资范围 ${text}, 预期: ${rangeMatchFormat(form, '元/月')}`,
         }
       }
     }

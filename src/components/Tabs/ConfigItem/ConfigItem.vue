@@ -23,7 +23,7 @@ const conf = useConf()
     label="公司规模范围"
     data-help="投递工作的公司规模, 推荐使用boss自带选项进行筛选。严格宽松定义在薪资高级配置中有写"
     v-model:enable="conf.formData.companySizeRange.enable"
-    class="col-span-2 xl:col-span-1"
+    class="flex-1"
   >
     <SalaryRangeComponent
       :controls="false"

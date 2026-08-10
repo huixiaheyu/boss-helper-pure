@@ -3,7 +3,7 @@ import { reactive, ref, toRaw } from 'vue'
 
 import { counter } from '@/message'
 import { ExtStorage } from '@/message'
-import type { FormData } from '@/types/formData'
+import type { FormData, FormDataRange, FormSalaryRangeInput } from '@/types/formData'
 import deepmerge, { jsonClone } from '@/utils/deepmerge'
 import { exportJson, importJson } from '@/utils/jsonImportExport'
 import { logger } from '@/utils/logger'
@@ -56,6 +56,32 @@ watchThrottled(
 )
 
 const FROM_VERSION: [string, (from: Partial<FormData>) => Partial<FormData>][] = [
+  [
+    '20260810',
+    (from) => {
+      const sr = from.salaryRange as FormSalaryRangeInput & {
+        advancedValue?: Record<string, FormDataRange>
+      }
+      if (sr && 'advancedValue' in sr) {
+        // 旧格式: value 为 K, 统一转为 元/月; advancedValue 改为按需换算
+        sr.value = [
+          Math.round(sr.value[0] * 1000),
+          Math.round(sr.value[1] * 1000),
+          sr.value[2],
+        ]
+        ;(sr as FormSalaryRangeInput).unit = 'K'
+        delete sr.advancedValue
+      } else if (sr && !('unit' in sr)) {
+        ;(sr as FormSalaryRangeInput).unit = 'K'
+      }
+      // 补充工作制换算参数(缺失时用双休默认)
+      if (sr && !('workDays' in sr)) {
+        ;(sr as FormSalaryRangeInput).workDays = 21.75
+        ;(sr as FormSalaryRangeInput).workHours = 8
+      }
+      return from
+    },
+  ],
   [
     '20250826',
     (from) => {
@@ -149,17 +175,26 @@ export const useConf = () => {
     }
   }
 
-  async function confSaving() {
+  // 保存当前 formData 到当前预设(无提示, 供自动保存/手动保存复用)
+  async function saveCurrent() {
     try {
       await counter.storageSet(formDataKey(), jsonClone(formData))
       await counter.storageSet(formDataPresetKey, jsonClone(formDataPreset.value))
       await counter.storageSet(formDataPresetsKey, jsonClone(formDataPresets.value))
+      logger.debug('formData已保存')
+    } catch (error) {
+      logger.error('配置保存失败', error)
+      throw error
+    }
+  }
 
+  async function confSaving() {
+    try {
+      await saveCurrent()
       toast.add({
         title: '保存成功',
         color: 'success',
       })
-      logger.debug('formData保存')
     } catch (error: any) {
       toast.add({
         title: `保存失败: ${error.message}`,
@@ -167,16 +202,15 @@ export const useConf = () => {
       })
       throw error
     }
-    // const helper = useHelper()
-    // helper.workflow?.rebuild()
   }
 
-  async function confReload() {
-    const v = deepmerge<FormData>(defaultFormData, await counter.storageGet(formDataKey(), {}))
-    deepmerge(formData, v, { clone: false })
-    logger.debug('formData已重置')
+  // 恢复默认配置并自动保存(取代旧的 重载/清空)
+  async function confResetDefault() {
+    deepmerge(formData, defaultFormData, { clone: false })
+    await saveCurrent()
+    logger.debug('formData已恢复默认')
     toast.add({
-      title: '重置成功',
+      title: '已恢复默认配置',
       color: 'success',
     })
   }
@@ -190,45 +224,9 @@ export const useConf = () => {
     let jsonData = await importJson<Partial<FormData>>()
     jsonData = (await formDataHandler(jsonData)) ?? jsonData
     deepmerge(formData, jsonData, { clone: false })
+    await saveCurrent()
     toast.add({
-      title: '导入成功, 切记要手动保存哦',
-      color: 'success',
-    })
-  }
-
-  function confRecommend() {
-    deepmerge(
-      formData,
-      [
-        'deliveryLimit',
-        'activityFilter',
-        'friendStatus',
-        'sameCompanyFilter',
-        'sameHrFilter',
-        'goldHunterFilter',
-        'notification',
-        'useCache',
-        'delay',
-      ].reduce(
-        (result, key) => {
-          result[key] = defaultFormData[key as keyof FormData]
-          return result
-        },
-        {} as Record<string, any>,
-      ),
-    )
-    logger.debug('formData推荐配置已应用')
-    toast.add({
-      title: '推荐配置已应用, 不会自动保存, 请手动保存或重载恢复',
-      color: 'success',
-    })
-  }
-
-  function confDelete() {
-    deepmerge(formData, defaultFormData)
-    logger.debug('formData已清空')
-    toast.add({
-      title: '配置清空成功, 不会自动保存, 请手动保存或重载恢复',
+      title: '导入成功, 已自动保存',
       color: 'success',
     })
   }
@@ -288,14 +286,35 @@ export const useConf = () => {
     }
   }
 
+  // 自动保存: 配置变更后防抖保存到当前预设
+  let autoSaveTimer: ReturnType<typeof setTimeout> | undefined
+  watch(
+    formData,
+    () => {
+      // 加载/切换预设期间不触发自动保存, 并取消待执行的保存
+      if (isLoading.value) {
+        if (autoSaveTimer) clearTimeout(autoSaveTimer)
+        return
+      }
+      if (autoSaveTimer) clearTimeout(autoSaveTimer)
+      autoSaveTimer = setTimeout(() => {
+        saveCurrent().catch((error) => {
+          toast.add({
+            title: `自动保存失败: ${String(error)}`,
+            color: 'error',
+          })
+        })
+      }, 800)
+    },
+    { deep: true },
+  )
+
   return {
     confInit: init,
     confSaving,
-    confReload,
+    confResetDefault,
     confExport,
     confImport,
-    confDelete,
-    confRecommend,
     formDataKey,
     defaultFormData,
     formData,

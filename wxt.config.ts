@@ -100,6 +100,59 @@ export default defineConfig({
               content: 'z-230',
             },
           },
+          dropdownMenu: {
+            slots: {
+              content:
+                'z-240 bg-(--paper) text-(--ink) border-(--line) shadow-xl dark:bg-(--stage-2) dark:text-(--paper) dark:border-(--line)',
+              item: 'data-[highlighted]:bg-(--paper-2) dark:data-[highlighted]:bg-(--stage)',
+            },
+          },
+          contextMenu: {
+            slots: {
+              content:
+                'z-240 bg-(--paper) text-(--ink) border-(--line) shadow-xl dark:bg-(--stage-2) dark:text-(--paper) dark:border-(--line)',
+              item: 'data-[highlighted]:bg-(--paper-2) dark:data-[highlighted]:bg-(--stage)',
+            },
+          },
+          popover: {
+            slots: {
+              content:
+                'z-240 bg-(--paper) text-(--ink) border-(--line) shadow-xl dark:bg-(--stage-2) dark:text-(--paper) dark:border-(--line)',
+            },
+          },
+          select: {
+            slots: {
+              content:
+                'z-240 bg-(--paper) text-(--ink) border-(--line) shadow-xl dark:bg-(--stage-2) dark:text-(--paper) dark:border-(--line)',
+            },
+          },
+          selectMenu: {
+            slots: {
+              content:
+                'z-240 bg-(--paper) text-(--ink) border-(--line) shadow-xl dark:bg-(--stage-2) dark:text-(--paper) dark:border-(--line)',
+              item: 'data-[highlighted]:bg-(--paper-2) dark:data-[highlighted]:bg-(--stage)',
+            },
+          },
+          inputMenu: {
+            slots: {
+              content:
+                'z-240 bg-(--paper) text-(--ink) border-(--line) shadow-xl dark:bg-(--stage-2) dark:text-(--paper) dark:border-(--line)',
+              item: 'data-[highlighted]:bg-(--paper-2) dark:data-[highlighted]:bg-(--stage)',
+            },
+          },
+          commandPalette: {
+            slots: {
+              content:
+                'z-240 bg-(--paper) text-(--ink) border-(--line) shadow-xl dark:bg-(--stage-2) dark:text-(--paper) dark:border-(--line)',
+            },
+          },
+          listbox: {
+            slots: {
+              content:
+                'z-240 bg-(--paper) text-(--ink) border-(--line) shadow-xl dark:bg-(--stage-2) dark:text-(--paper) dark:border-(--line)',
+              item: 'data-[highlighted]:bg-(--paper-2) dark:data-[highlighted]:bg-(--stage)',
+            },
+          },
         },
       }),
       tailwindShadowDOM(),
