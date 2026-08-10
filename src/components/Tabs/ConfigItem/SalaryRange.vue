@@ -18,6 +18,7 @@ const unit = computed<'yuan' | 'qian' | 'wan'>({
 })
 
 // 当前单位对应的换算系数(存储值 元/月 -> 显示值)
+// 元 = 元/天(存储元/月 ÷ 每月工作天数), 千/万 = 千元/月/万元/月
 const unitFactor = computed(() => {
   switch (unit.value) {
     case 'wan':
@@ -25,7 +26,7 @@ const unitFactor = computed(() => {
     case 'qian':
       return 1000
     default:
-      return 1
+      return workDays.value
   }
 })
 
