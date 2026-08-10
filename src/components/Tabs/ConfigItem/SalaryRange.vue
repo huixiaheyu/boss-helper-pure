@@ -8,41 +8,45 @@ const conf = useConf()
 const calcOpen = ref(false)
 const salaryRangeRef = ref()
 
-// ---- 主配置：直接选定 xx-xx 元 或 xx-xx K ----
-const unit = computed<'yuan' | 'K'>({
+// ---- 主配置：直接选定 xx-xx 元 / 千 / 万 ----
+// 切换单位只改单位标识, 不修改存储值(统一元/月), 避免切换时累积误差
+const unit = computed<'yuan' | 'qian' | 'wan'>({
   get: () => conf.formData.salaryRange.unit,
   set: (v) => {
-    const old = conf.formData.salaryRange.unit
-    if (old === v) return
-    // 切换单位时同步换算存储值(元/月 <-> K)
-    const factor = v === 'K' ? 0.001 : 1000
-    const v0 = Math.round(conf.formData.salaryRange.value[0] * factor)
-    const v1 = Math.round(conf.formData.salaryRange.value[1] * factor)
-    conf.formData.salaryRange.value[0] = v0
-    conf.formData.salaryRange.value[1] = v1
     conf.formData.salaryRange.unit = v
   },
 })
 
-// 当前单位下展示的 最小/最大 值(双向)
+// 当前单位对应的换算系数(存储值 元/月 -> 显示值)
+const unitFactor = computed(() => {
+  switch (unit.value) {
+    case 'wan':
+      return 10000
+    case 'qian':
+      return 1000
+    default:
+      return 1
+  }
+})
+
+// 当前单位下展示的 最小/最大 值(双向, 显示时换算, 输入时换算回元/月存储)
+// 显示保留最多 2 位小数, 避免 200元 -> 千/万 时被抹成 0
 const displayMin = computed<number>({
   get: () => {
-    const v = conf.formData.salaryRange.value[0]
-    return unit.value === 'K' ? v / 1000 : v
+    const d = conf.formData.salaryRange.value[0] / unitFactor.value
+    return Math.round(d * 100) / 100
   },
   set: (n) => {
-    const factor = unit.value === 'K' ? 1000 : 1
-    conf.formData.salaryRange.value[0] = Math.round((n || 0) * factor)
+    conf.formData.salaryRange.value[0] = Math.round((n || 0) * unitFactor.value)
   },
 })
 const displayMax = computed<number>({
   get: () => {
-    const v = conf.formData.salaryRange.value[1]
-    return unit.value === 'K' ? v / 1000 : v
+    const d = conf.formData.salaryRange.value[1] / unitFactor.value
+    return Math.round(d * 100) / 100
   },
   set: (n) => {
-    const factor = unit.value === 'K' ? 1000 : 1
-    conf.formData.salaryRange.value[1] = Math.round((n || 0) * factor)
+    conf.formData.salaryRange.value[1] = Math.round((n || 0) * unitFactor.value)
   },
 })
 
@@ -135,18 +139,29 @@ function toggleMode() {
   conf.formData.salaryRange.value[2] = !conf.formData.salaryRange.value[2]
 }
 
-// 单位显示文本与点击切换
-const unitText = computed(() => (unit.value === 'K' ? 'K' : '元'))
+// 单位显示文本与点击切换(元 -> 千 -> 万 -> 元 循环)
+const unitText = computed(() => {
+  switch (unit.value) {
+    case 'wan':
+      return '万'
+    case 'qian':
+      return '千'
+    default:
+      return '元'
+  }
+})
 
 function toggleUnit() {
-  unit.value = unit.value === 'K' ? 'yuan' : 'K'
+  const order: Array<'yuan' | 'qian' | 'wan'> = ['yuan', 'qian', 'wan']
+  const idx = order.indexOf(unit.value)
+  unit.value = order[(idx + 1) % order.length]
 }
 </script>
 
 <template>
   <FormItem
     label="薪资范围"
-    data-help="直接选定薪资范围(元/K)，可切换到严格或宽松匹配；点击「计算」可查看并微调 时/日/月 薪资"
+    data-help="直接选定薪资范围(元/千/万)，可切换到严格或宽松匹配；点击「计算」可查看并微调 时/日/月 薪资"
     v-model:enable="conf.formData.salaryRange.enable"
     class="flex-1"
     ref="salaryRangeRef"
@@ -163,9 +178,9 @@ function toggleUnit() {
       </UButton>
     </template>
     <div class="flex flex-wrap items-center gap-2">
-      <UInputNumber v-model="displayMin" :min="0" class="w-24" :increment="false" :decrement="false" />
+      <UInputNumber v-model="displayMin" :min="0" :step="0.01" class="w-24" :increment="false" :decrement="false" />
       <span class="mono-label">—</span>
-      <UInputNumber v-model="displayMax" :min="0" class="w-24" :increment="false" :decrement="false" />
+      <UInputNumber v-model="displayMax" :min="0" :step="0.01" class="w-24" :increment="false" :decrement="false" />
       <UButton variant="soft" size="sm" @click="toggleUnit"> {{ unitText }} </UButton>
       <UButton size="sm" @click="calcOpen = !calcOpen"> 计算 </UButton>
     </div>

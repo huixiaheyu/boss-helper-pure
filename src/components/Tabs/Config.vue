@@ -80,34 +80,30 @@ const configItems = helper.getConfigItems()
           </UFormField>
         </div>
       </UForm>
-      <div class="flex flex-row *:flex *:flex-row justify-between *:gap-3 mt-3">
-        <div>
-          <UButton
-            color="warning"
-            data-help="将当前配置重置为默认值并自动保存"
-            @click="conf.confResetDefault"
-          >
-            恢复默认配置
-          </UButton>
-        </div>
-        <div>
-          <UButton
-            v-if="conf.configLevel.intermediate"
-            color="primary"
-            data-help="互联网就是要分享"
-            @click="conf.confExport"
-          >
-            导出配置
-          </UButton>
-          <UButton
-            v-if="conf.configLevel.intermediate"
-            color="primary"
-            data-help="互联网就是要分享"
-            @click="conf.confImport"
-          >
-            导入配置
-          </UButton>
-        </div>
+      <div class="flex flex-row justify-end gap-3 mt-3">
+        <UButton
+          color="warning"
+          data-help="将当前配置重置为默认值并自动保存"
+          @click="conf.confResetDefault"
+        >
+          默认配置
+        </UButton>
+        <UButton
+          v-if="conf.configLevel.intermediate"
+          color="warning"
+          data-help="互联网就是要分享"
+          @click="conf.confImport"
+        >
+          导入配置
+        </UButton>
+        <UButton
+          v-if="conf.configLevel.intermediate"
+          color="warning"
+          data-help="互联网就是要分享"
+          @click="conf.confExport"
+        >
+          导出配置
+        </UButton>
       </div>
     </UTheme>
   </div>

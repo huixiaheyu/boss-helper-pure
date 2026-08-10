@@ -19,8 +19,6 @@ export const useStatistics = () => {
     date,
     success: 0,
     total: 0,
-    repeat: 0,
-    activityFilter: 0,
     tasks: {},
   })
 

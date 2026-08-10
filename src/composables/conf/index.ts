@@ -69,15 +69,19 @@ const FROM_VERSION: [string, (from: Partial<FormData>) => Partial<FormData>][] =
           Math.round(sr.value[1] * 1000),
           sr.value[2],
         ]
-        ;(sr as FormSalaryRangeInput).unit = 'K'
+        ;(sr as FormSalaryRangeInput).unit = 'qian'
         delete sr.advancedValue
       } else if (sr && !('unit' in sr)) {
-        ;(sr as FormSalaryRangeInput).unit = 'K'
+        ;(sr as FormSalaryRangeInput).unit = 'qian'
       }
       // 补充工作制换算参数(缺失时用双休默认)
       if (sr && !('workDays' in sr)) {
         ;(sr as FormSalaryRangeInput).workDays = 21.75
         ;(sr as FormSalaryRangeInput).workHours = 8
+      }
+      // 旧单位 'K' 语义即 千/月, 迁移到新单位 'qian'
+      if (sr && (sr as unknown as { unit?: string }).unit === 'K') {
+        ;(sr as FormSalaryRangeInput).unit = 'qian'
       }
       return from
     },
@@ -206,17 +210,23 @@ export const useConf = () => {
 
   // 恢复默认配置并自动保存(取代旧的 重载/清空)
   async function confResetDefault() {
-    deepmerge(formData, defaultFormData, { clone: false })
-    await saveCurrent()
-    logger.debug('formData已恢复默认')
-    toast.add({
-      title: '已恢复默认配置',
-      color: 'success',
-    })
+    isResetting = true
+    try {
+      deepmerge(formData, defaultFormData, { clone: false })
+      await saveCurrent()
+      logger.debug('formData已恢复默认')
+      toast.add({
+        title: '已恢复默认配置',
+        color: 'success',
+      })
+    } finally {
+      isResetting = false
+    }
   }
 
   async function confExport() {
-    const data = deepmerge<FormData>(defaultFormData, await counter.storageGet(formDataKey(), {}))
+    // 直接导出当前 formData 实时值, 避免自动保存(800ms防抖)未触发时导出旧配置
+    const data = jsonClone(formData)
     exportJson(data, '打招呼配置')
   }
 
@@ -288,11 +298,13 @@ export const useConf = () => {
 
   // 自动保存: 配置变更后防抖保存到当前预设
   let autoSaveTimer: ReturnType<typeof setTimeout> | undefined
+  // 恢复默认配置期间为 true, 用于跳过自动保存避免与 saveCurrent 重复写
+  let isResetting = false
   watch(
     formData,
     () => {
-      // 加载/切换预设期间不触发自动保存, 并取消待执行的保存
-      if (isLoading.value) {
+      // 加载/切换预设/恢复默认期间不触发自动保存, 并取消待执行的保存
+      if (isLoading.value || isResetting) {
         if (autoSaveTimer) clearTimeout(autoSaveTimer)
         return
       }

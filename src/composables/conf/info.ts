@@ -143,7 +143,7 @@ export const defaultFormData: FormData = {
   },
   salaryRange: {
     value: [8000, 13000, false],
-    unit: 'K',
+    unit: 'qian',
     workDays: 21.75,
     workHours: 8,
     enable: false,

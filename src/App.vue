@@ -23,6 +23,7 @@ const items = computed<TabsItem[]>(() => {
     { slot: 'filter', label: '搜索' },
     { slot: 'config', label: '配置' },
     { slot: 'logs', label: '日志' },
+    { slot: 'about', label: '关于' },
   ] satisfies (TabsItem | boolean | null | undefined | '')[]
 
   return configs.filter((item) => !!item) as TabsItem[]
@@ -60,16 +61,19 @@ onMounted(() => {
   >
     <UApp :portal="container" :toaster="{ position: 'top-right', ui: { viewport: 'z-100000' } }">
       <div>
-        <div class="boss-panel relative overflow-hidden pt-4 pb-4 px-5 flex flex-col h-[690px]">
+        <div class="boss-panel relative overflow-hidden pt-4 pb-4 px-5 flex flex-col h-[640px]">
           <div class="stage-glow" />
           <div class="relative z-10 flex flex-col flex-1 min-h-0">
           <!-- 顶部横栏 + 等级进度（签名游戏化元素） -->
           <div class="flex items-center justify-between gap-4 mb-4">
             <div class="flex items-baseline gap-3">
-              <span class="serif-title text-2xl tracking-tight">
+              <span
+                class="serif-title text-2xl tracking-tight"
+                style="color: var(--accent)"
+              >
                 {{ !appearanceConf.hideHeader ? 'Boss-Helper Pure' : 'Helper' }}
               </span>
-              <span class="mono-label hidden sm:inline">求职助手 · 批量投递</span>
+              <span class="mono-label hidden sm:inline">纯净版 · 求职助手 · 批量投递</span>
             </div>
             <div class="flex items-center gap-4">
               <span v-if="helper.workflow && helper.workflow.total.value > 0" class="mono-label">
@@ -101,6 +105,7 @@ onMounted(() => {
             </template>
             <template #config><Config /></template>
             <template #logs><Logs /></template>
+            <template #about><About /></template>
           </UTabs>
           </div>
         </div>
