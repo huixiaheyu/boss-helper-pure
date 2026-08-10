@@ -4,7 +4,7 @@ import { HelperContext } from '~/composables/useHelper'
 
 import { sameCompanyKey, sameHrKey } from '../../entrypoints/boss/requests'
 import { defineTaskHandler, JobStatus, TaskContext, TaskResult } from './type'
-import { matchRange, parseSalaryToMonth, rangeMatch, rangeMatchFormat } from './utils'
+import { formatSalaryRange, matchRange, parseSalaryToMonth, rangeMatch, rangeMatchFormat } from './utils'
 
 export class DependencyMissingError extends Error {
   constructor(public taskId: string) {
@@ -211,17 +211,15 @@ export class TaskRegistry<C extends HelperContext<C, T, S>, T, S = {}> {
     }
     // 主配置统一为 元/月: [min, max, mode]
     const form = ctx.helper.conf.formData.salaryRange.value
+    const salaryUnit = ctx.helper.conf.formData.salaryRange.unit
+    const workDays = ctx.helper.conf.formData.salaryRange.workDays
     return async (_ctx, { jobData: data }) => {
       const text = data.salary
       // 优先使用结构化薪资(元/月), 缺失时回退文本解析
       let lo = data.lowSalary
       let hi = data.highSalary
       if (typeof lo !== 'number' || typeof hi !== 'number' || (!lo && !hi)) {
-        const parsed = parseSalaryToMonth(
-          text,
-          ctx.helper.conf.formData.salaryRange.workDays,
-          ctx.helper.conf.formData.salaryRange.workHours,
-        )
+        const parsed = parseSalaryToMonth(text, workDays, ctx.helper.conf.formData.salaryRange.workHours)
         if (!parsed) {
           // 无法解析(如"面议"), 不拦截
           return
@@ -231,7 +229,7 @@ export class TaskRegistry<C extends HelperContext<C, T, S>, T, S = {}> {
       if (!matchRange(lo, hi, form)) {
         return {
           isSkip: true,
-          reason: `不匹配的薪资范围 ${text}, 预期: ${rangeMatchFormat(form, '元/月')}`,
+          reason: `不匹配的薪资范围 ${text}, 预期: ${formatSalaryRange(form, salaryUnit, workDays)}`,
         }
       }
     }

@@ -193,8 +193,8 @@ export const defaultFormData: FormData = {
     enable: false,
   },
   delayDeliveryStarts: 3,
-  delayDeliveryInterval: 5,
-  delayDeliveryPageNext: 60,
+  delayDeliveryInterval: 2,
+  delayDeliveryPageNext: 20,
   delayMessageSending: 2,
   version: '20260810',
 }

@@ -128,6 +128,11 @@ const FROM_VERSION: [string, (from: Partial<FormData>) => Partial<FormData>][] =
   ],
 ]
 
+// 自动保存状态提升到模块级: useConf 被多个组件调用, 确保 watch 只安装一次、状态全局共享
+let autoSaveInstalled = false
+let autoSaveTimer: ReturnType<typeof setTimeout> | undefined
+let isResetting = false
+
 export const useConf = () => {
   const toast = useToast()
 
@@ -227,7 +232,10 @@ export const useConf = () => {
   async function confExport() {
     // 直接导出当前 formData 实时值, 避免自动保存(800ms防抖)未触发时导出旧配置
     const data = jsonClone(formData)
-    exportJson(data, '打招呼配置')
+    const now = new Date()
+    const pad = (n: number) => String(n).padStart(2, '0')
+    const timestamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}`
+    exportJson(data, `Boss-Helper-Pure配置-${timestamp}`)
   }
 
   async function confImport() {
@@ -296,30 +304,37 @@ export const useConf = () => {
     }
   }
 
-  // 自动保存: 配置变更后防抖保存到当前预设
-  let autoSaveTimer: ReturnType<typeof setTimeout> | undefined
-  // 恢复默认配置期间为 true, 用于跳过自动保存避免与 saveCurrent 重复写
-  let isResetting = false
-  watch(
-    formData,
-    () => {
-      // 加载/切换预设/恢复默认期间不触发自动保存, 并取消待执行的保存
-      if (isLoading.value || isResetting) {
+  // 自动保存: 配置变更后防抖保存到当前预设(仅在首次调用 useConf 时安装一次, 避免多个组件各自监听)
+  if (!autoSaveInstalled) {
+    autoSaveInstalled = true
+    watch(
+      formData,
+      () => {
+        // 加载/切换预设/恢复默认期间不触发自动保存, 并取消待执行的保存
+        if (isLoading.value || isResetting) {
+          if (autoSaveTimer) clearTimeout(autoSaveTimer)
+          return
+        }
         if (autoSaveTimer) clearTimeout(autoSaveTimer)
-        return
-      }
-      if (autoSaveTimer) clearTimeout(autoSaveTimer)
-      autoSaveTimer = setTimeout(() => {
-        saveCurrent().catch((error) => {
-          toast.add({
-            title: `自动保存失败: ${String(error)}`,
-            color: 'error',
-          })
-        })
-      }, 800)
-    },
-    { deep: true },
-  )
+        autoSaveTimer = setTimeout(() => {
+          saveCurrent()
+            .then(() => {
+              toast.add({
+                title: '已自动保存',
+                color: 'success',
+              })
+            })
+            .catch((error) => {
+              toast.add({
+                title: `自动保存失败: ${String(error)}`,
+                color: 'error',
+              })
+            })
+        }, 800)
+      },
+      { deep: true },
+    )
+  }
 
   return {
     confInit: init,

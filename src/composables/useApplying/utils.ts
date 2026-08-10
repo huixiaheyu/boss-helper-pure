@@ -34,6 +34,31 @@ export function rangeMatch(rangeStr: string, form: FormDataRange): boolean {
   }
 }
 
+// 薪资主配置单位对应的换算系数(存储值 元/月 -> 该单位值)
+export function salaryUnitFromMonth(unit: 'yuan' | 'qian' | 'wan', workDays: number): number {
+  switch (unit) {
+    case 'wan':
+      return 10000
+    case 'qian':
+      return 1000
+    default:
+      return workDays
+  }
+}
+
+// 把主配置(元/月区间)按指定单位格式化显示, 如 200 - 1000 元/天
+export function formatSalaryRange(
+  form: FormDataRange,
+  unit: 'yuan' | 'qian' | 'wan',
+  workDays: number,
+): string {
+  const factor = salaryUnitFromMonth(unit, workDays)
+  const unitText = unit === 'wan' ? '万/月' : unit === 'qian' ? '千/月' : '元/天'
+  const [lo, hi] = [form[0] / factor, form[1] / factor]
+  const fmt = (n: number) => (Number.isInteger(n) ? String(n) : String(Math.round(n * 100) / 100))
+  return `${fmt(lo)} - ${fmt(hi)} ${unitText}`
+}
+
 // 直接以数值区间判断是否匹配(薪资主配置为 元/月)
 export function matchRange(jobLow: number, jobHigh: number, form: FormDataRange): boolean {
   let [start, end, mode] = form
@@ -49,8 +74,8 @@ export function matchRange(jobLow: number, jobHigh: number, form: FormDataRange)
     // 严格：职位范围完全包含 目标范围
     return start <= lo && hi <= end
   }
-  // 宽松：任意重叠(闭区间)
-  return Math.max(lo, start) <= Math.min(hi, end)
+  // 宽松：要求有实质重叠(开区间), 排除仅在端点"擦边"的情况
+  return Math.max(lo, start) < Math.min(hi, end)
 }
 
 // 把职位薪资文本解析为 元/月 区间, 解析失败返回 null

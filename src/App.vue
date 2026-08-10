@@ -61,7 +61,7 @@ onMounted(() => {
   >
     <UApp :portal="container" :toaster="{ position: 'top-right', ui: { viewport: 'z-100000' } }">
       <div>
-        <div class="boss-panel relative overflow-hidden pt-4 pb-4 px-5 flex flex-col h-[640px]">
+        <div class="boss-panel relative overflow-hidden pt-4 pb-4 px-5 flex flex-col h-[660px]">
           <div class="stage-glow" />
           <div class="relative z-10 flex flex-col flex-1 min-h-0">
           <!-- 顶部横栏 + 等级进度（签名游戏化元素） -->
