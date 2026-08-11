@@ -28,10 +28,14 @@ export function rangeMatch(rangeStr: string, form: FormDataRange): boolean {
   if (mode) {
     // 严格：职位范围(input) 完全覆盖 目标范围(form)
     return start <= inputStart && inputEnd <= end
-  } else {
-    // 宽松：任意重叠（闭区间）
-    return Math.max(inputStart, start) <= Math.min(inputEnd, end)
   }
+  // 宽松：与 matchRange 语义一致, 要求实质重叠(开区间), 零宽区间退化为闭区间
+  const overlapStart = Math.max(inputStart, start)
+  const overlapEnd = Math.min(inputEnd, end)
+  if (inputStart === inputEnd || start === end) {
+    return overlapStart <= overlapEnd
+  }
+  return overlapStart < overlapEnd
 }
 
 // 薪资主配置单位对应的换算系数(存储值 元/月 -> 该单位值)
@@ -117,6 +121,9 @@ export function parseSalaryToMonth(
     factor = workDays
   } else if (/k/i.test(text)) {
     factor = 1000
+  } else if (text.includes('万')) {
+    // "2-3万" 类文本
+    factor = 10000
   }
   return [Math.round(lo * factor), Math.round(hi * factor)]
 }

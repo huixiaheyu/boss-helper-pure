@@ -449,7 +449,8 @@ export class BossHelperCtx extends HelperContext<BossHelperCtx, BoosJobData, {}>
 
     job.rawData.detail = detail
     const targetJob = job.jobData
-    targetJob.activeTime = detail.brandComInfo.activeTime
+    // 列表页的 HR 活跃时间(lastModifyTime)比公司维度的 brandComInfo.activeTime 更准确, 优先保留
+    targetJob.activeTime = targetJob.activeTime ?? detail.brandComInfo.activeTime
     targetJob.activeTimeStr = detail.bossInfo.activeTimeDesc
     targetJob.jobDescription = detail.jobInfo.postDescription
     targetJob.city = detail.jobInfo.locationName

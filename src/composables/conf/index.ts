@@ -241,6 +241,10 @@ export const useConf = () => {
 
   async function confImport() {
     let jsonData = await importJson<Partial<FormData>>()
+    // 用户取消选择或文件不合法时 importJson 返回 null
+    if (!jsonData) {
+      return
+    }
     jsonData = (await formDataHandler(jsonData)) ?? jsonData
     deepmerge(formData, jsonData, { clone: false })
     await saveCurrent()
