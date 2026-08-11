@@ -4,7 +4,7 @@ import { PipelineCacheManager } from '@/composables/usePipelineCache'
 import type { PipelineCacheItem, ProcessorType } from '@/types/pipelineCache'
 
 import { HelperContext } from '../useHelper'
-import { BossHelperError, PublishError } from './deliverError'
+import { BossHelperError, LimitError, PublishError, RateLimitError } from './deliverError'
 import { DependencyMissingError } from './handles'
 import {
   Handler,
@@ -117,7 +117,17 @@ export async function useDeliveryWorkflow<C extends HelperContext<C, T, S>, T, S
     const _resolvedHandlers = new Map<string, any>()
     const errors = new Map<string, any>()
 
-    const rawTasks = items.flatMap((i) => (typeof i === 'function' ? { ...i() } : { ...i }))
+    // 先扁平化再克隆(含数组字段), 避免:
+    // 1. 对 TaskPipeline(数组) 做对象展开会产出 {0: task, ...} 的损坏任务
+    // 2. 浅克隆共享 deps/before/after 数组, 多次 rebuild 会重复追加 hook
+    const rawTasks = items
+      .flatMap((i) => (typeof i === 'function' ? i() : i))
+      .map((t) => ({
+        ...t,
+        deps: [...t.deps],
+        before: [...t.before],
+        after: [...t.after],
+      }))
     const requiredIds = new Set<string>()
     for (const task of rawTasks) {
       try {
@@ -244,6 +254,7 @@ export async function useDeliveryWorkflow<C extends HelperContext<C, T, S>, T, S
           })
           res = await executeTask(t, data)
           if (res != null) {
+            res.id ??= t.id
             res.msg ??= t.label ?? t.id
             res.status ??= res.isSkip ? 'warn' : undefined
             if (res.isSkip) {
@@ -253,7 +264,18 @@ export async function useDeliveryWorkflow<C extends HelperContext<C, T, S>, T, S
           }
           if (isStop()) break
         } catch (e) {
+          // 触发平台限额/风控: 终止整个投递流程, 避免继续发送注定失败的请求加剧风控
+          if (e instanceof LimitError || e instanceof RateLimitError) {
+            status.value = 'stop'
+          }
+          // 岗位已投递成功时, 后续任务(如 Boss信息获取)失败不覆盖成功状态, 否则该岗位会被重复投递
+          const prev = helper.jobResultMaps.get(data.jobData.key)
+          if (prev?.status === 'success') {
+            logger.warn(`任务${t.label ?? t.id}执行失败(岗位已投递成功)`, e)
+            break
+          }
           res = {
+            id: t.id,
             isSkip: true,
             status: 'error',
             reason: `任务${t.label ?? t.id}执行失败: ${e instanceof Error ? e.message : e}`,
@@ -326,6 +348,13 @@ export async function useDeliveryWorkflow<C extends HelperContext<C, T, S>, T, S
 
     try {
       while (status.value === 'running') {
+        // 达到用户设置的每日投递上限则自动暂停
+        const limit = helper.conf.formData.deliveryLimit.value
+        if (limit > 0 && helper.statistics.todayData.success >= limit) {
+          status.value = 'stop'
+          stepMsg = `已达到今日投递上限(${limit}次)`
+          break
+        }
         if (helper.jobList.value.length === 0) {
           stepMsg = '没有职位可投递'
           break

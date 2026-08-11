@@ -74,8 +74,14 @@ export function matchRange(jobLow: number, jobHigh: number, form: FormDataRange)
     // 严格：职位范围完全包含 目标范围
     return start <= lo && hi <= end
   }
-  // 宽松：要求有实质重叠(开区间), 排除仅在端点"擦边"的情况
-  return Math.max(lo, start) < Math.min(hi, end)
+  // 宽松：要求有实质重叠(开区间), 排除仅在端点"擦边"的情况;
+  // 单边为零宽区间(固定薪资/单值文本/min==max)时退化为闭区间判断, 否则永远无法匹配
+  const overlapStart = Math.max(lo, start)
+  const overlapEnd = Math.min(hi, end)
+  if (lo === hi || start === end) {
+    return overlapStart <= overlapEnd
+  }
+  return overlapStart < overlapEnd
 }
 
 // 把职位薪资文本解析为 元/月 区间, 解析失败返回 null

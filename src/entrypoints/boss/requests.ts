@@ -88,7 +88,8 @@ export async function sendPublishReq(
             headers: { Zp_token: token },
           })
 
-          return sendPublishReq(data, undefined, retries, { cid: 1 })
+          // 重试次数需递减, 否则确认未生效时会无限递归投递
+          return sendPublishReq(data, undefined, retries - 1, { cid: 1 })
         } catch (e) {
           logger.error('尝试确认投递限制失败', e)
           throw new PublishError(`投递限制确认失败]${content}`)

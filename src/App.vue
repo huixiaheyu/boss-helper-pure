@@ -77,7 +77,7 @@ onMounted(() => {
             </div>
             <div class="flex items-center gap-4">
               <span v-if="helper.workflow && helper.workflow.total.value > 0" class="mono-label">
-                页面 {{ helper.workflow.current.value + 1 }}/{{ helper.workflow.total.value }}
+                页面 {{ helper.workflow.current.value }}/{{ helper.workflow.total.value }}
               </span>
               <span class="mono-label shrink-0">
                 今日投递 {{ todayData.success }}/{{ conf.formData.deliveryLimit.value }}
