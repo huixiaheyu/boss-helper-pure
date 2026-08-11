@@ -59,7 +59,15 @@ let delayLoadId: number | undefined
 export async function delay(s: number, isStopped?: () => boolean) {
   return new Promise<void>((resolve) => {
     loader({ ms: s * 1000, isStopped, onDone: resolve })
-    setTimeout(resolve, s * 1000)
+    const startedAt = Date.now()
+    const timer = setInterval(() => {
+      // rAF 在后台标签页会被节流导致 onDone 不触发, 用 setInterval 兜底;
+      // 同时让暂停立即生效, 而不是等满整个延迟
+      if (isStopped?.() || Date.now() - startedAt >= s * 1000) {
+        clearInterval(timer)
+        resolve()
+      }
+    }, 200)
   })
 }
 
@@ -126,8 +134,8 @@ export function getCurDay(currentDate = new Date()) {
 
 // 获取当前时间
 export function getCurTime(currentDate = new Date()) {
-  const hours = String(currentDate.getHours() + 1).padStart(2, '0')
-  const minutes = String(currentDate.getMinutes() + 1).padStart(2, '0')
+  const hours = String(currentDate.getHours()).padStart(2, '0')
+  const minutes = String(currentDate.getMinutes()).padStart(2, '0')
   const seconds = String(currentDate.getSeconds()).padStart(2, '0')
   return `${hours}:${minutes}:${seconds}`
 }

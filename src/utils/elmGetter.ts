@@ -135,7 +135,7 @@ function each(
   const filter = (el: Element) => {
     for (const node of query(true, selector, el, true)) {
       const _el = node
-      if (refs.has(_el)) break
+      if (refs.has(_el)) continue
       refs.add(_el)
       if (callback(node, true) === false) {
         return removeFilter(parent, filter)

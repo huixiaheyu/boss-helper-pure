@@ -52,7 +52,7 @@ export async function amapGeocode(
 ): Promise<AmapGeocode['geocodes'][number] | undefined> {
   const { formData } = useConf()
   const res = (await fetch(
-    `https://restapi.amap.com/v3/geocode/geo?address=${address}&output=JSON&Key=${formData.amap.key}`,
+    `https://restapi.amap.com/v3/geocode/geo?address=${encodeURIComponent(address)}&output=JSON&Key=${formData.amap.key}`,
   ).then((response) => response.json())) as AmapGeocode | AmapError
   if (res.status !== '1' || !('geocodes' in res)) {
     throw new Error(res.info)
@@ -67,16 +67,17 @@ async function fetchDistance(
   key: string,
 ): Promise<AmapDistance | AmapError> {
   return fetch(
-    `https://restapi.amap.com/v3/distance?origins=${origins}&destination=${destination}&type=${type}&output=JSON&Key=${key}`,
+    `https://restapi.amap.com/v3/distance?origins=${encodeURIComponent(origins)}&destination=${encodeURIComponent(destination)}&type=${type}&output=JSON&Key=${key}`,
   ).then((r) => r.json())
 }
 
 function extractResult(res: AmapDistance | AmapError) {
   if (res.status === '1' && 'results' in res) {
-    return {
-      ok: true,
-      distance: Number(res.results?.[0]?.distance),
-      duration: Number(res.results?.[0]?.duration),
+    const distance = Number(res.results?.[0]?.distance)
+    const duration = Number(res.results?.[0]?.duration)
+    // results 为空时 Number(undefined) 得到 NaN, NaN 比较恒 false 会静默绕过距离过滤
+    if (Number.isFinite(distance) && Number.isFinite(duration)) {
+      return { ok: true, distance, duration }
     }
   }
   return { ok: false, distance: 0, duration: 0 }

@@ -186,14 +186,14 @@ export class TaskRegistry<C extends HelperContext<C, T, S>, T, S = {}> {
   company = defineTaskHandler<C, T, S>('公司名', (ctx) => {
     if (!ctx.helper.conf.formData.company.enable) return
     return async (_ctx, { jobData: data }) => {
-      const text = data.brand.name
+      const text = data.brand.name.toLowerCase()
       if (!text) return taskResult.skip('公司名为空')
 
       for (const x of ctx.helper.conf.formData.company.value) {
         if (!x) {
           continue
         }
-        if (text.includes(x)) {
+        if (text.includes(x.toLowerCase())) {
           if (ctx.helper.conf.formData.company.include) {
             return
           }

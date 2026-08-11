@@ -115,7 +115,20 @@ export class ProvideBackgroundAdapter implements Adapter<MessageMeta> {
     switch (message.meta.injector) {
       case 'content': {
         const tabs = await browser.tabs.query({ url: message.meta.url })
-        tabs.map((tab) => browser.tabs.sendMessage(tab.id!, message))
+        await Promise.all(
+          tabs.map((tab) =>
+            browser.tabs.sendMessage(tab.id!, message).catch((error) => {
+              // 目标 tab 没有监听脚本(如未刷新注入)时忽略, 避免未处理的 rejection
+              if (
+                error?.message?.includes('Receiving end does not exist') ||
+                error?.message?.includes('Could not establish connection')
+              ) {
+                return
+              }
+              throw error
+            }),
+          ),
+        )
         break
       }
       case 'popup': {
@@ -150,10 +163,17 @@ export class ProvideBackgroundAdapter implements Adapter<MessageMeta> {
 export class InjectBackgroundAdapter implements Adapter<MessageMeta> {
   constructor(public name: MessageMeta['injector'] = 'content') {}
   sendMessage: SendMessage<MessageMeta> = (message) => {
-    browser.runtime.sendMessage(browser.runtime.id, {
-      ...message,
-      meta: { url: document.location.href, injector: this.name },
-    } satisfies Message<MessageMeta>)
+    browser.runtime
+      .sendMessage(browser.runtime.id, {
+        ...message,
+        meta: { url: document.location.href, injector: this.name },
+      } satisfies Message<MessageMeta>)
+      .catch((error) => {
+        if (error?.message?.includes('Receiving end does not exist')) {
+          return
+        }
+        throw error
+      })
   }
   onMessage: OnMessage<MessageMeta> = (callback) => {
     const handler = (message?: Partial<Message<MessageMeta>>) => {
