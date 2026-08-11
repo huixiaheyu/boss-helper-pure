@@ -85,13 +85,15 @@ export class TaskRegistry<C extends HelperContext<C, T, S>, T, S = {}> {
       }
       return {
         fn: async (_, { jobData: data }) => {
-          if (someSet.has(data.key)) {
+          // 以公司链接(含 encryptBrandId)标识公司, 岗位 key 每个岗位唯一, 无法判重
+          const companyId = data.brand?.link ?? data.key
+          if (someSet.has(companyId)) {
             return taskResult.skip('相同公司已投递')
           }
         },
         after: [
           async (ctx, { jobData: data }) => {
-            someSet.add(data.key)
+            someSet.add(data.brand?.link ?? data.key)
             if (someSet.size % 3 === 0) {
               const oldData = await counter.storageGet<Record<string, string[]>>(sameCompanyKey, {})
               await counter.storageSet(sameCompanyKey, {
@@ -120,13 +122,15 @@ export class TaskRegistry<C extends HelperContext<C, T, S>, T, S = {}> {
 
       return {
         fn: async (_, { jobData: data }) => {
-          if (data.key != null && someSet.has(data.key)) {
+          // 以 Boss 链接(含 encryptBossId)标识 HR, 岗位 key 每个岗位唯一, 无法判重
+          const hrId = data.boss?.link ?? data.key
+          if (someSet.has(hrId)) {
             return taskResult.skip('相同hr已投递')
           }
         },
         after: [
           async (ctx, { jobData: data }) => {
-            someSet.add(data.key)
+            someSet.add(data.boss?.link ?? data.key)
             if (someSet.size % 3 === 0) {
               const oldData = await counter.storageGet<Record<string, string[]>>(sameHrKey, {})
               await counter.storageSet(sameHrKey, {
@@ -258,7 +262,9 @@ export class TaskRegistry<C extends HelperContext<C, T, S>, T, S = {}> {
         if (!x) {
           continue
         }
-        const re = new RegExp(`(?<!(不|无).{0,5})${x.toLowerCase()}(?!系统|软件|工具|服务)`)
+        // 关键词需转义后再拼正则, 否则 'C++' / '.NET' / '(' 等会导致误匹配或 RegExp 抛异常
+        const escaped = x.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        const re = new RegExp(`(?<!(不|无).{0,5})${escaped}(?!系统|软件|工具|服务)`)
         if (content != null && re.test(content)) {
           if (ctx.helper.conf.formData.jobContent.include) {
             return
@@ -324,9 +330,12 @@ export class TaskRegistry<C extends HelperContext<C, T, S>, T, S = {}> {
           }
         }
       }
-      return {
-        isSkip: true,
-        reason: `工作地址不包含关键词: ${content}`,
+      // 仅包含模式下, 未命中任何关键词才跳过
+      if (ctx.helper.conf.formData.jobAddress.include) {
+        return {
+          isSkip: true,
+          reason: `工作地址不包含关键词: ${content}`,
+        }
       }
     }
   })

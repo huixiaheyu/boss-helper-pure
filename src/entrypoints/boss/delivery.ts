@@ -58,7 +58,7 @@ export const bossWorkflow = defineTaskWorkflow<BossHelperCtx, BoosJobData>(
       }
       return async (_, { rawData }) => {
         if (
-          rawData.detail.bossInfo.avatarStickerUrl.includes(
+          rawData.detail.bossInfo.avatarStickerUrl?.includes(
             '492b4ca74ee6ee7bfecf8d0d363780c68ad8b582857d894c8eae833b21840fb6',
           )
         ) {
