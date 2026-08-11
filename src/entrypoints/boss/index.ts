@@ -187,13 +187,14 @@ export class BossHelperCtx extends HelperContext<BossHelperCtx, BoosJobData, {}>
 
       this._pageChange(this._page.value.page + 1)
       await delay
+      if (this._pageHasMore.value === false) {
+        logger.error('翻页: 没有更多职位')
+        return false
+      }
       const currentFirstJobId = this._jobList.value[0]?.encryptJobId ?? ''
-      if (
-        (location.href.includes('/web/geek/job-recommend') ||
-          location.href.includes('/web/geek/jobs')) &&
-        oldLen === this._jobList.value.length &&
-        oldFirstJobId === currentFirstJobId
-      ) {
+      // 所有页面通用: 翻页后列表无变化说明已到最后一页
+      // (此前仅对 job-recommend/jobs 生效, 主搜索页 /web/geek/job 会无限翻页空转)
+      if (oldLen === this._jobList.value.length && oldFirstJobId === currentFirstJobId) {
         logger.error('翻页: 内容无变化')
         return false
       }
@@ -432,13 +433,16 @@ export class BossHelperCtx extends HelperContext<BossHelperCtx, BoosJobData, {}>
     }
     this._clickJobCardAction(job.rawData.jobitem)
     const detail = await new Promise<BossZpDetailData>((resolve, reject) => {
-      setTimeout(() => {
+      let interval: ReturnType<typeof setInterval>
+      const timer = setTimeout(() => {
+        clearInterval(interval)
         reject(new Error('bossZpDetailData获取超时'))
       }, 1000 * 60)
-      const interval = setInterval(() => {
+      interval = setInterval(() => {
         if (this._jobDetail.value && this._jobDetail.value.lid === job.rawData.jobitem.lid) {
-          resolve(this._jobDetail.value)
+          clearTimeout(timer)
           clearInterval(interval)
+          resolve(this._jobDetail.value)
         }
       }, 100)
     })
@@ -456,6 +460,8 @@ export class BossHelperCtx extends HelperContext<BossHelperCtx, BoosJobData, {}>
       ...targetJob.boss,
       isOnline: detail.bossInfo.bossOnline,
       isCertificated: detail.bossInfo.certificated,
+      // 映射好友关系, 否则好友状态过滤永远失效
+      isFriend: detail.relationInfo?.beFriend ?? false,
     }
 
     targetJob.brand = {

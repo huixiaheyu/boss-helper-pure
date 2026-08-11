@@ -59,13 +59,13 @@ const pct = (numerator: number) => {
   return ((numerator / total) * 100).toFixed(1)
 }
 
-// 已沟通(重复投递)数量: 从「已沟通」任务跳过计数统计
+// 已沟通(重复投递)数量: 从「已沟通」任务跳过计数统计(跳过结果的状态为 warn)
 const repeatCount = computed(
-  () => todayData.tasks?.['已沟通']?.skip ?? 0,
+  () => todayData.tasks?.['已沟通']?.warn ?? 0,
 )
 // 不活跃数量: 从「活跃度过滤」任务跳过计数统计
 const activityCount = computed(
-  () => todayData.tasks?.['活跃度过滤']?.skip ?? 0,
+  () => todayData.tasks?.['活跃度过滤']?.warn ?? 0,
 )
 
 onMounted(() => {
@@ -159,7 +159,7 @@ onMounted(() => {
       <UProgress
         data-help="我会统计当天脚本投递的数量,该记录并不准确"
         class="flex-1"
-        :value="Number(((todayData.success / deliveryLimit) * 100).toFixed(1))"
+        :value="Number(((todayData.success / conf.formData.deliveryLimit.value) * 100).toFixed(1))"
       />
     </div>
   </div>

@@ -56,13 +56,19 @@ export function useHookVueData<T = any>(
     data.value = jobVue[key]
     update?.(toValue(jobVue[key] as T))
     // eslint-disable-next-line no-restricted-properties
+    const originalGet = jobVue.__lookupGetter__(key)
+    // eslint-disable-next-line no-restricted-properties
     const originalSet = jobVue.__lookupSetter__(key)
-    // eslint-disable-next-line accessor-pairs
     Object.defineProperty(jobVue, key, {
+      configurable: true,
+      // 保留原 getter, 否则宿主页面自身读取该属性会得到 undefined
+      get() {
+        return originalGet ? originalGet.call(this) : data.value
+      },
       set(val: T) {
         data.value = val
         update?.(val)
-        originalSet.call(this, val)
+        originalSet?.call(this, val)
       },
     })
   }
