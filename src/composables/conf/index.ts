@@ -55,37 +55,8 @@ watchThrottled(
   { throttle: 2000 },
 )
 
+// 注意: 必须按版本号升序排列, formDataHandler 会依次应用所有比存量版本新的迁移
 const FROM_VERSION: [string, (from: Partial<FormData>) => Partial<FormData>][] = [
-  [
-    '20260810',
-    (from) => {
-      const sr = from.salaryRange as FormSalaryRangeInput & {
-        advancedValue?: Record<string, FormDataRange>
-      }
-      if (sr && 'advancedValue' in sr) {
-        // 旧格式: value 为 K, 统一转为 元/月; advancedValue 改为按需换算
-        sr.value = [
-          Math.round(sr.value[0] * 1000),
-          Math.round(sr.value[1] * 1000),
-          sr.value[2],
-        ]
-        ;(sr as FormSalaryRangeInput).unit = 'qian'
-        delete sr.advancedValue
-      } else if (sr && !('unit' in sr)) {
-        ;(sr as FormSalaryRangeInput).unit = 'qian'
-      }
-      // 补充工作制换算参数(缺失时用双休默认)
-      if (sr && !('workDays' in sr)) {
-        ;(sr as FormSalaryRangeInput).workDays = 21.75
-        ;(sr as FormSalaryRangeInput).workHours = 8
-      }
-      // 旧单位 'K' 语义即 千/月, 迁移到新单位 'qian'
-      if (sr && (sr as unknown as { unit?: string }).unit === 'K') {
-        ;(sr as FormSalaryRangeInput).unit = 'qian'
-      }
-      return from
-    },
-  ],
   [
     '20250826',
     (from) => {
@@ -126,6 +97,36 @@ const FROM_VERSION: [string, (from: Partial<FormData>) => Partial<FormData>][] =
       return from
     },
   ],
+  [
+    '20260810',
+    (from) => {
+      const sr = from.salaryRange as FormSalaryRangeInput & {
+        advancedValue?: Record<string, FormDataRange>
+      }
+      if (sr && 'advancedValue' in sr) {
+        // 旧格式: value 为 K, 统一转为 元/月; advancedValue 改为按需换算
+        sr.value = [
+          Math.round(sr.value[0] * 1000),
+          Math.round(sr.value[1] * 1000),
+          sr.value[2],
+        ]
+        ;(sr as FormSalaryRangeInput).unit = 'qian'
+        delete sr.advancedValue
+      } else if (sr && !('unit' in sr)) {
+        ;(sr as FormSalaryRangeInput).unit = 'qian'
+      }
+      // 补充工作制换算参数(缺失时用双休默认)
+      if (sr && !('workDays' in sr)) {
+        ;(sr as FormSalaryRangeInput).workDays = 21.75
+        ;(sr as FormSalaryRangeInput).workHours = 8
+      }
+      // 旧单位 'K' 语义即 千/月, 迁移到新单位 'qian'
+      if (sr && (sr as unknown as { unit?: string }).unit === 'K') {
+        ;(sr as FormSalaryRangeInput).unit = 'qian'
+      }
+      return from
+    },
+  ],
 ]
 
 // 自动保存状态提升到模块级: useConf 被多个组件调用, 确保 watch 只安装一次、状态全局共享
@@ -138,10 +139,10 @@ export const useConf = () => {
 
   async function formDataHandler(from: Partial<FormData>) {
     try {
-      for (let i = FROM_VERSION.length - 1; i >= 0; i--) {
-        const [version, fn] = FROM_VERSION[i]
+      // FROM_VERSION 按版本号升序, 依次应用所有比存量版本新的迁移
+      for (const [version, fn] of FROM_VERSION) {
         if ((from?.version ?? '20240401') >= version) {
-          break
+          continue
         }
         from = fn(from)
         from.version = version
