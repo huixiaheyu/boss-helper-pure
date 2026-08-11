@@ -49,6 +49,21 @@ export default defineConfig({
               variant: 'subtle',
             },
           },
+          input: {
+            slots: {
+              base: 'disabled:opacity-50 disabled:bg-gray-100 disabled:cursor-not-allowed',
+            },
+          },
+          inputNumber: {
+            slots: {
+              base: 'disabled:opacity-50 disabled:bg-gray-100 disabled:cursor-not-allowed',
+            },
+          },
+          inputTags: {
+            slots: {
+              base: 'disabled:opacity-50 disabled:bg-gray-100 disabled:cursor-not-allowed',
+            },
+          },
           alert: {
             slots: {
               root: 'px-4 py-2',

@@ -144,6 +144,7 @@ export type ConfigItem =
       key: string
       fieldProps?: FormFieldProps
       inputNumberProps?: InputNumberProps
+      unit?: string
     }
 
 export interface ConfigAccordionItem extends AccordionItem {

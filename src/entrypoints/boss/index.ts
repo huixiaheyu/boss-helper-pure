@@ -366,50 +366,40 @@ export class BossHelperCtx extends HelperContext<BossHelperCtx, BoosJobData, {}>
                     type: 'inputNumber',
                     key: 'delayDeliveryStarts',
                     fieldProps: {
-                      label: '投递开始',
-                      'data-help': '点击投递按钮会等待一段时间,默认值10s',
+                      label: '投递前等待',
+                      'data-help': '点击投递按钮后，等待多久才开始处理第一批岗位',
                     },
                     inputNumberProps: {
                       min: 1,
                       max: 99999,
                     },
+                    unit: '秒',
                   },
                   {
                     type: 'inputNumber',
                     key: 'delayDeliveryInterval',
                     fieldProps: {
-                      label: '投递间隔',
-                      'data-help': '每个投递的间隔,太快易风控,默认值2s',
+                      label: '每岗位投递间隔',
+                      'data-help': '每投递完一个岗位后，等待多久再投下一个，太快易风控',
                     },
                     inputNumberProps: {
                       min: 1,
                       max: 99999,
                     },
+                    unit: '秒',
                   },
                   {
                     type: 'inputNumber',
                     key: 'delayDeliveryPageNext',
                     fieldProps: {
-                      label: '投递翻页',
-                      'data-help': '投递完下一页之后等待的间隔,太快易风控,默认值60s',
+                      label: '翻页前等待',
+                      'data-help': '投完当前页所有岗位、翻到下一页之前等待的间隔，太快易风控',
                     },
                     inputNumberProps: {
                       min: 1,
                       max: 99999,
                     },
-                  },
-                  {
-                    type: 'inputNumber',
-                    key: 'delayMessageSending',
-                    fieldProps: {
-                      label: '消息发送',
-                      'data-help': '在发送消息前允许等待一定的时间让用户来修改或手动发送,默认值2s',
-                    },
-                    inputNumberProps: {
-                      min: 1,
-                      max: 99999,
-                      disable: true,
-                    },
+                    unit: '秒',
                   },
                 ],
               },

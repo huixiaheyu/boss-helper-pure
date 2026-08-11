@@ -50,16 +50,16 @@ export function salaryUnitFromMonth(unit: 'yuan' | 'qian' | 'wan', workDays: num
   }
 }
 
-// 把主配置(元/月区间)按指定单位格式化显示, 如 200 - 1000 元/天
+// 把主配置(元/月区间)按指定单位格式化显示, 如 200 - 1000 元/日
 export function formatSalaryRange(
   form: FormDataRange,
   unit: 'yuan' | 'qian' | 'wan',
   workDays: number,
 ): string {
   const factor = salaryUnitFromMonth(unit, workDays)
-  const unitText = unit === 'wan' ? '万/月' : unit === 'qian' ? '千/月' : '元/天'
+  const unitText = unit === 'wan' ? '万/月' : unit === 'qian' ? '千/月' : '元/日'
   const [lo, hi] = [form[0] / factor, form[1] / factor]
-  const fmt = (n: number) => (Number.isInteger(n) ? String(n) : String(Math.round(n * 100) / 100))
+  const fmt = (n: number) => (Number.isInteger(n) ? String(n) : String(Math.round(n * 1000) / 1000))
   return `${fmt(lo)} - ${fmt(hi)} ${unitText}`
 }
 

@@ -23,19 +23,26 @@ const conf = useConf()
     label="公司规模范围"
     data-help="投递工作的公司规模, 推荐使用boss自带选项进行筛选。严格宽松定义在薪资高级配置中有写"
     v-model:enable="conf.formData.companySizeRange.enable"
+    :disabled="conf.formData.companySizeRange.enable"
     class="flex-1"
   >
-    <SalaryRangeComponent
-      :controls="false"
-      :value="conf.formData.companySizeRange.value"
-      unit="人"
-      :show="true"
-    />
+    <template #default="{ disabled }">
+      <SalaryRangeComponent
+        :controls="false"
+        :value="conf.formData.companySizeRange.value"
+        unit="人"
+        :show="true"
+        :disabled="disabled"
+      />
+    </template>
   </FormItem>
   <SalaryRange v-else-if="item.type === 'salaryRange'" />
 
   <UFormField v-else-if="item.type === 'inputNumber'" v-bind="item.fieldProps">
-    <UInputNumber v-model="conf.formData[item.key]" v-bind="item.inputNumberProps" />
+    <UFieldGroup>
+      <UInputNumber v-model="conf.formData[item.key]" v-bind="item.inputNumberProps" />
+      <UBadge v-if="item.unit" :label="item.unit" />
+    </UFieldGroup>
   </UFormField>
 
   <FormItem
@@ -43,12 +50,15 @@ const conf = useConf()
     v-bind="formInfoData[item.key]"
     v-model:enable="conf.formData[item.key].enable"
     v-model:include="conf.formData[item.key].include"
-    :disabled="helper.workflowRunning.value"
+    :disabled="conf.formData[item.key].enable || helper.workflowRunning.value"
   >
-    <formSelect
-      v-model:value="conf.formData[item.key].value"
-      v-model:options="conf.formData[item.key].options"
-    />
+    <template #default="{ disabled }">
+      <formSelect
+        v-model:value="conf.formData[item.key].value"
+        v-model:options="conf.formData[item.key].options"
+        :disabled="disabled"
+      />
+    </template>
   </FormItem>
   <span
     v-else-if="item.type === 'checkbox'"

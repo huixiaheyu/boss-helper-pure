@@ -73,7 +73,7 @@ export const formInfoData: Record<string, any> = {
   },
   amap: {
     enable: {
-      label: '启用',
+      label: '启用地址筛选',
       'data-help': '启用高德地图, 用于获取工作地址的距离和时间进行筛选，需要配置自己的key',
     },
     key: {
@@ -195,6 +195,5 @@ export const defaultFormData: FormData = {
   delayDeliveryStarts: 3,
   delayDeliveryInterval: 2,
   delayDeliveryPageNext: 20,
-  delayMessageSending: 2,
   version: '20260810',
 }

@@ -69,14 +69,17 @@ const configItems = helper.getConfigItems()
             label="投递数量"
             class="ml-auto"
           >
-            <UInputNumber
-              label="投递数量"
-              data-help="达到上限后会自动暂停，默认100次, 当前boss上限为150"
-              v-model="conf.formData.deliveryLimit.value"
-              :min="1"
-              :max="155"
-              :step="10"
-            />
+            <UFieldGroup>
+              <UInputNumber
+                label="投递数量"
+                data-help="达到上限后会自动暂停，默认100次, 当前boss上限为150"
+                v-model="conf.formData.deliveryLimit.value"
+                :min="1"
+                :max="155"
+                :step="10"
+              />
+              <UBadge label="次" />
+            </UFieldGroup>
           </UFormField>
         </div>
       </UForm>

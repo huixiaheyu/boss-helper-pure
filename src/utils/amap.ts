@@ -55,7 +55,7 @@ export async function amapGeocode(
     `https://restapi.amap.com/v3/geocode/geo?address=${encodeURIComponent(address)}&output=JSON&Key=${formData.amap.key}`,
   ).then((response) => response.json())) as AmapGeocode | AmapError
   if (res.status !== '1' || !('geocodes' in res)) {
-    throw new Error(res.info)
+    throw new Error(`高德地理编码失败 [${res.infocode}] ${res.info}`)
   }
   return res.geocodes?.[0]
 }

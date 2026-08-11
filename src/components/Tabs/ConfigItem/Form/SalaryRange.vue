@@ -8,6 +8,7 @@ const props = withDefaults(
     show: boolean
     step?: number
     controls?: boolean
+    disabled?: boolean
     ui?: InputNumberProps['ui']
   }>(),
   {
@@ -32,6 +33,7 @@ const handleToggle = () => {
       :step="props.step"
       :increment="false"
       :decrement="false"
+      :disabled="props.disabled"
       :ui="props.ui"
     />
     <UBadge>-</UBadge>
@@ -41,6 +43,7 @@ const handleToggle = () => {
       :step="props.step"
       :increment="false"
       :decrement="false"
+      :disabled="props.disabled"
       :ui="props.ui"
     />
 
