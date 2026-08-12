@@ -4,7 +4,7 @@ import { HelperContext } from '~/composables/useHelper'
 
 import { sameCompanyKey, sameHrKey } from '../../entrypoints/boss/requests'
 import { defineTaskHandler, JobStatus, TaskContext, TaskResult } from './type'
-import { formatSalaryRange, matchRange, parseSalaryToMonth, rangeMatch, rangeMatchFormat } from './utils'
+import { formatSalaryRange, isActiveWithinMonths, matchRange, parseSalaryToMonth, rangeMatch, rangeMatchFormat } from './utils'
 
 export class DependencyMissingError extends Error {
   constructor(public taskId: string) {
@@ -359,26 +359,16 @@ export class TaskRegistry<C extends HelperContext<C, T, S>, T, S = {}> {
       return
     }
     return async (_, { jobData }) => {
+      // 以 HR 活跃描述(activeTimeDesc)判断, 只允许 2 个月内活跃
+      // (不能用 jobData.activeTime: 它是职位修改时间 lastModifyTime, 会掩盖 HR 长期不活跃)
       const activeText = jobData.activeTimeStr
-      const activeTime = jobData.activeTime
-      // 允许 2 个月内的活跃，超过则跳过
-      if (activeTime) {
-        const twoMonths = 2 * 30 * 24 * 60 * 60 * 1000
-        if (ctx.now.getTime() - activeTime > twoMonths) {
-          return taskResult.skip(`不活跃 [${new Date(activeTime).toLocaleString()}]`)
-        }
-        return
+      const verdict = isActiveWithinMonths(activeText, 2)
+      if (verdict === false) {
+        return taskResult.skip(activeText ? `不活跃, [${activeText}]` : '无活跃内容,如果全失败请反馈')
       }
-      // 无时间戳时回退文本判断
-      if (!activeText) {
-        return taskResult.skip(`无活跃内容,如果全失败请反馈`)
-      }
-      if (activeText.includes('年')) {
-        return taskResult.skip(`不活跃, [${activeText}]`)
-      }
-      const monthMatch = activeText.match(/(\d+)\s*个月/)
-      if (monthMatch && Number(monthMatch[1]) > 2) {
-        return taskResult.skip(`不活跃, [${activeText}]`)
+      // 未识别的活跃描述: 标红提示, 方便补充解析规则
+      if (verdict === undefined) {
+        return taskResult.skip(`未识别的活跃描述, 请反馈: [${activeText}]`, 'error')
       }
     }
   })

@@ -127,3 +127,32 @@ export function parseSalaryToMonth(
   }
   return [Math.round(lo * factor), Math.round(hi * factor)]
 }
+
+// 判断 HR 活跃描述(activeTimeDesc)是否在 N 个月内活跃
+// Boss 站常见文案: 刚刚活跃/今日活跃/昨日活跃/本周活跃/本月活跃/3日内活跃/2月内活跃/5月内活跃/半年前活跃/1年前活跃/较久未活跃
+// 返回值:
+//   true    = N 个月内活跃(允许)
+//   false   = 明确超过 N 个月(拒绝, 如 半年/年/未活跃/无内容)
+//   undefined = 无法识别(拒绝但需标红提示, 便于补充解析)
+export function isActiveWithinMonths(text: string | undefined, months: number): boolean | undefined {
+  if (!text) return false
+  if (
+    text.includes('刚刚') ||
+    text.includes('今日') ||
+    text.includes('昨日') ||
+    text.includes('本周') ||
+    text.includes('本月')
+  ) {
+    return true
+  }
+  const day = text.match(/(\d+)\s*日内活跃/)
+  if (day) return Number(day[1]) <= months * 30
+  const week = text.match(/(\d+)\s*周内活跃/)
+  if (week) return Number(week[1]) * 7 <= months * 30
+  const month = text.match(/(\d+)\s*月内活跃/)
+  if (month) return Number(month[1]) <= months
+  // 明确的超时文案
+  if (text.includes('半年') || /年/.test(text) || text.includes('未活跃')) return false
+  // 其他文案无法识别, 返回 undefined 让上层标红提示
+  return undefined
+}

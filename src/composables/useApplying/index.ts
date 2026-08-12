@@ -353,6 +353,7 @@ export async function useDeliveryWorkflow<C extends HelperContext<C, T, S>, T, S
         if (limit > 0 && helper.statistics.todayData.success >= limit) {
           status.value = 'stop'
           stepMsg = `已达到今日投递上限(${limit}次)`
+          helper.logs.info('投递结束', `已达到今日投递上限(${limit}次)`)
           break
         }
         if (helper.jobList.value.length === 0) {

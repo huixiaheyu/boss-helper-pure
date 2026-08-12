@@ -51,6 +51,7 @@ const columns: TableColumn<Log>[] = [
   {
     accessorKey: 'title',
     header: '标题',
+    size: 180,
     cell: ({ row }) => (
       <UButton
         variant="link"

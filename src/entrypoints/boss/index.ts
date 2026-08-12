@@ -189,6 +189,7 @@ export class BossHelperCtx extends HelperContext<BossHelperCtx, BoosJobData, {}>
       await delay
       if (this._pageHasMore.value === false) {
         logger.error('翻页: 没有更多职位')
+        this.logs.info('投递结束', 'Boss 已无更多职位，投递停止')
         return false
       }
       const currentFirstJobId = this._jobList.value[0]?.encryptJobId ?? ''
@@ -196,10 +197,12 @@ export class BossHelperCtx extends HelperContext<BossHelperCtx, BoosJobData, {}>
       // (此前仅对 job-recommend/jobs 生效, 主搜索页 /web/geek/job 会无限翻页空转)
       if (oldLen === this._jobList.value.length && oldFirstJobId === currentFirstJobId) {
         logger.error('翻页: 内容无变化')
+        this.logs.info('投递结束', '已滚动到列表底部，无法刷出新岗位，投递停止')
         return false
       }
     } catch (err) {
       logger.error('翻页: 下一页错误', err)
+      this.logs.info('投递结束', '翻页出现错误，投递停止')
       return false
     }
     return true
