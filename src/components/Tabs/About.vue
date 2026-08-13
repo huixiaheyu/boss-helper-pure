@@ -16,7 +16,7 @@
 
     <div class="flex flex-col gap-1">
       <div class="mono-label text-xs opacity-60">作者寄语</div>
-      <p class="text-sm leading-relaxed italic" style="color: var(--ink-soft)">
+      <p class="text-base leading-relaxed italic text-center" style="color: var(--ink-soft)">
         打工只是过渡，当老板才是终极目标。祝愿所有人拨开迷雾，早日上岸，自在从容。
       </p>
     </div>

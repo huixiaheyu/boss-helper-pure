@@ -322,7 +322,7 @@ export class BossHelperCtx extends HelperContext<BossHelperCtx, BoosJobData, {}>
               },
               {
                 type: 'div',
-                class: 'col-span-full flex flex-wrap gap-2 mt-3',
+                class: 'col-span-full flex flex-wrap justify-between gap-2 mt-3',
                 items: [
                   conf.configLevel.intermediate && {
                     type: 'checkbox',

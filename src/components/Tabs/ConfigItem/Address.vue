@@ -11,6 +11,9 @@ const amapGeocodeLoading = ref(false)
 // 启用地址筛选后锁定参数输入, 防止投递运行中被误改; 需先取消启用才能编辑
 const addrDisabled = computed(() => conf.formData.amap.enable)
 
+// 统一字段 label 宽度, 让标签和编辑框列方向对齐
+const fieldLabelUi = { label: { base: 'w-28 shrink-0' } }
+
 async function amapGeocodeHandler() {
   const amapKey = conf.formData.amap.key
   if (!amapKey) {
@@ -73,7 +76,11 @@ async function amapGeocodeHandler() {
       </UFormField>
     </div>
     <div class="grid grid-cols-2 gap-2">
-      <UFormField v-bind="formInfoData.amap.origins">
+      <UFormField
+        v-bind="formInfoData.amap.origins"
+        :title="formInfoData.amap.origins['data-help']"
+        :ui="fieldLabelUi"
+      >
         <UFieldGroup>
           <UInput
             v-model="conf.formData.amap.origins"
@@ -92,7 +99,11 @@ async function amapGeocodeHandler() {
           </UButton>
         </UFieldGroup>
       </UFormField>
-      <UFormField v-bind="formInfoData.amap.straightDistance">
+      <UFormField
+        v-bind="formInfoData.amap.straightDistance"
+        :title="formInfoData.amap.straightDistance['data-help']"
+        :ui="fieldLabelUi"
+      >
         <UFieldGroup>
           <UInputNumber
             v-model="conf.formData.amap.straightDistance"
@@ -106,7 +117,11 @@ async function amapGeocodeHandler() {
         </UFieldGroup>
       </UFormField>
 
-      <UFormField v-bind="formInfoData.amap.drivingDistance">
+      <UFormField
+        v-bind="formInfoData.amap.drivingDistance"
+        :title="formInfoData.amap.drivingDistance['data-help']"
+        :ui="fieldLabelUi"
+      >
         <UFieldGroup>
           <UInputNumber
             v-model="conf.formData.amap.drivingDistance"
@@ -119,7 +134,11 @@ async function amapGeocodeHandler() {
           <UBadge label="km" />
         </UFieldGroup>
       </UFormField>
-      <UFormField v-bind="formInfoData.amap.drivingDuration">
+      <UFormField
+        v-bind="formInfoData.amap.drivingDuration"
+        :title="formInfoData.amap.drivingDuration['data-help']"
+        :ui="fieldLabelUi"
+      >
         <UFieldGroup>
           <UInputNumber
             v-model="conf.formData.amap.drivingDuration"
@@ -134,7 +153,11 @@ async function amapGeocodeHandler() {
         </UFieldGroup>
       </UFormField>
 
-      <UFormField v-bind="formInfoData.amap.walkingDistance">
+      <UFormField
+        v-bind="formInfoData.amap.walkingDistance"
+        :title="formInfoData.amap.walkingDistance['data-help']"
+        :ui="fieldLabelUi"
+      >
         <UFieldGroup>
           <UInputNumber
             v-model="conf.formData.amap.walkingDistance"
@@ -147,7 +170,11 @@ async function amapGeocodeHandler() {
           <UBadge label="km" />
         </UFieldGroup>
       </UFormField>
-      <UFormField v-bind="formInfoData.amap.walkingDuration">
+      <UFormField
+        v-bind="formInfoData.amap.walkingDuration"
+        :title="formInfoData.amap.walkingDuration['data-help']"
+        :ui="fieldLabelUi"
+      >
         <UFieldGroup>
           <UInputNumber
             v-model="conf.formData.amap.walkingDuration"
